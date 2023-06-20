@@ -14,13 +14,14 @@ const Login = ({ navigation }) => {
 
 
     useEffect(() => {
-       const unsubscribe = auth.onAuthStateChanged(user => {
-            if (user){
-                navigation2.replace("Training")
-            }
-        })
-        return unsubscribe
-    }, [])
+        const unsubscribe = auth.onAuthStateChanged(user => {
+             if (user){
+                 navigation2.replace("MainMenu")
+             }
+         })
+         return unsubscribe
+     }, [])
+     
 
     const saveUserData = async (userId) => {
         try {

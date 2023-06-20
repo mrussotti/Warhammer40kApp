@@ -1,10 +1,11 @@
-//app.js
 import React, { useState, useEffect } from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 import Settings from './screens/Settings';
 import Login from './screens/login';
-import BottomTabs from './BottomTabs';
+import MainMenu from './screens/MainMenu';
+import Army from './screens/Army';
+import Play from './screens/Play';
 import { auth } from './firebase';
 
 const Stack = createStackNavigator();
@@ -31,11 +32,9 @@ const App = () => {
       <Stack.Navigator>
         {user ? (
           <>
-            <Stack.Screen
-              name="Back"
-              component={BottomTabs}
-              options={{ headerShown: false }}
-            />
+            <Stack.Screen name="MainMenu" component={MainMenu} />
+            <Stack.Screen name="Army" component={Army} />
+            <Stack.Screen name="Play" component={Play} />
             <Stack.Screen name="Settings" component={Settings} />
           </>
         ) : (
