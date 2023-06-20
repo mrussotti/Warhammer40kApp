@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, Button, FlatList } from 'react-native';
-import { db } from '../firebase';
+import { db, auth } from '../firebase';
 import { useIsFocused } from '@react-navigation/native';
 
 
@@ -11,7 +11,7 @@ const Army = ({ navigation }) => {
   useEffect(() => {
     if (isFocused) {
       const fetchArmies = async () => {
-        const armiesSnapshot = await db.collection('Armies').get();
+        const armiesSnapshot = await db.collection('Armies').where('userId', '==', auth.currentUser.uid).get(); // only get armies for the current user
         const armiesData = await Promise.all(armiesSnapshot.docs.map(async doc => {
           const armyData = doc.data();
           const factionSnapshot = await db.collection('factions').doc(armyData.faction).get();

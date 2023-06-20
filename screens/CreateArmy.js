@@ -44,7 +44,7 @@ const CreateArmy = ({ navigation }) => {
       name,
       faction,
       units: armyUnits,
-      userId: auth.currentUser.uid,
+      userId: auth.currentUser.uid, // store the user's ID with the army
     });
     navigation.goBack();
   };
