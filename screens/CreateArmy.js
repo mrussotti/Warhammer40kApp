@@ -17,6 +17,7 @@ const CreateArmy = ({ navigation }) => {
         const snapshot = await db.collection('factions').get();
         const factionsArray = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
         setFactions(factionsArray);
+        setFaction(factionsArray[0].id); // Set initial faction to the first one
       } catch (error) {
         console.error('Error fetching factions:', error);
       }
@@ -29,6 +30,8 @@ const CreateArmy = ({ navigation }) => {
     if (faction) {
       const selectedFaction = factions.find(f => f.id === faction);
       setUnits(selectedFaction.squads);
+      setArmyUnits([]); // Reset army units when faction changes
+      setUnit(selectedFaction.squads[0].name); // Set initial unit to the first one of the selected faction
     }
   }, [faction]);
 
@@ -62,7 +65,7 @@ const CreateArmy = ({ navigation }) => {
           <Picker.Item key={unit.name} label={unit.name} value={unit.name} />
         ))}
       </Picker>
-      <Button title="Add Unit" onPress={handleAddUnit} />
+      <Button title="Add Unit" onPress={handleAddUnit} disabled={!faction || !unit} />
       <FlatList
         data={armyUnits}
         renderItem={({ item }) => <Text>{item}</Text>}
