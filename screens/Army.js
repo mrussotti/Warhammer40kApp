@@ -1,16 +1,34 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, Button } from 'react-native';
 import { db } from '../firebase';
 import { Picker } from '@react-native-picker/picker';
-
 
 const Army = ({ navigation }) => {
   const [selectedFaction, setSelectedFaction] = useState('');
   const [selectedUnit, setSelectedUnit] = useState('');
   const [army, setArmy] = useState([]);
+  const [factions, setFactions] = useState([]);
+  const [units, setUnits] = useState([]);
 
-  const factions = ['Faction 1', 'Faction 2', 'Faction 3']; // Replace with your actual factions
-  const units = ['Unit 1', 'Unit 2', 'Unit 3']; // Replace with your actual units
+  useEffect(() => {
+    const fetchFactions = async () => {
+      const factionsSnapshot = await db.collection('Factions').get();
+      setFactions(factionsSnapshot.docs.map(doc => doc.id));
+    };
+
+    fetchFactions();
+  }, []);
+
+  useEffect(() => {
+    if (selectedFaction) {
+      const fetchUnits = async () => {
+        const unitsSnapshot = await db.collection('Factions').doc(selectedFaction).collection('Units').get();
+        setUnits(unitsSnapshot.docs.map(doc => doc.id));
+      };
+
+      fetchUnits();
+    }
+  }, [selectedFaction]);
 
   const handleAddUnit = () => {
     setArmy([...army, selectedUnit]);
@@ -49,6 +67,7 @@ const Army = ({ navigation }) => {
       </Picker>
       <Button title="Add Unit" onPress={handleAddUnit} />
       <Button title="Save Army" onPress={handleSaveArmy} />
+      <Button title="Make New Army" onPress={() => navigation.navigate('CreateArmy')} />
     </View>
   );
 };
