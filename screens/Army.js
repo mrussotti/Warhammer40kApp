@@ -1,72 +1,46 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, Button } from 'react-native';
+import { View, Text, StyleSheet, Button, FlatList } from 'react-native';
 import { db } from '../firebase';
-import { Picker } from '@react-native-picker/picker';
+import { useIsFocused } from '@react-navigation/native';
+
 
 const Army = ({ navigation }) => {
-  const [selectedFaction, setSelectedFaction] = useState('');
-  const [selectedUnit, setSelectedUnit] = useState('');
-  const [army, setArmy] = useState([]);
-  const [factions, setFactions] = useState([]);
-  const [units, setUnits] = useState([]);
+  const [armies, setArmies] = useState([]);
+  const isFocused = useIsFocused();
 
   useEffect(() => {
-    const fetchFactions = async () => {
-      const factionsSnapshot = await db.collection('Factions').get();
-      setFactions(factionsSnapshot.docs.map(doc => doc.id));
-    };
-
-    fetchFactions();
-  }, []);
-
-  useEffect(() => {
-    if (selectedFaction) {
-      const fetchUnits = async () => {
-        const unitsSnapshot = await db.collection('Factions').doc(selectedFaction).collection('Units').get();
-        setUnits(unitsSnapshot.docs.map(doc => doc.id));
+    if (isFocused) {
+      const fetchArmies = async () => {
+        const armiesSnapshot = await db.collection('Armies').get();
+        const armiesData = await Promise.all(armiesSnapshot.docs.map(async doc => {
+          const armyData = doc.data();
+          const factionSnapshot = await db.collection('factions').doc(armyData.faction).get();
+          const factionData = factionSnapshot.data();
+          return { id: doc.id, faction: factionData.name, units: armyData.units };
+        }));
+        console.log(armiesData);
+        setArmies(armiesData);
       };
 
-      fetchUnits();
+      fetchArmies();
     }
-  }, [selectedFaction]);
+  }, [isFocused]);
 
-  const handleAddUnit = () => {
-    setArmy([...army, selectedUnit]);
-  };
-
-  const handleSaveArmy = async () => {
-    try {
-      await db.collection('armies').add({
-        faction: selectedFaction,
-        units: army,
-      });
-      alert('Army saved successfully!');
-    } catch (error) {
-      console.log('Error saving army:', error);
-    }
-  };
+  const renderItem = ({ item }) => (
+    <View style={styles.item}>
+      <Text style={styles.title}>Faction: {item.faction}</Text>
+      <Text style={styles.title}>Units: {item.units}</Text>
+    </View>
+  );
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Army</Text>
-      <Picker
-        selectedValue={selectedFaction}
-        onValueChange={(itemValue) => setSelectedFaction(itemValue)}
-      >
-        {factions.map((faction, index) => (
-          <Picker.Item key={index} label={faction} value={faction} />
-        ))}
-      </Picker>
-      <Picker
-        selectedValue={selectedUnit}
-        onValueChange={(itemValue) => setSelectedUnit(itemValue)}
-      >
-        {units.map((unit, index) => (
-          <Picker.Item key={index} label={unit} value={unit} />
-        ))}
-      </Picker>
-      <Button title="Add Unit" onPress={handleAddUnit} />
-      <Button title="Save Army" onPress={handleSaveArmy} />
+      <Text style={styles.title}>Armies</Text>
+      <FlatList
+        data={armies}
+        renderItem={renderItem}
+        keyExtractor={item => item.id}
+      />
       <Button title="Make New Army" onPress={() => navigation.navigate('CreateArmy')} />
     </View>
   );
@@ -83,5 +57,11 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 24,
     marginBottom: 20,
+  },
+  item: {
+    backgroundColor: '#f9c2ff',
+    padding: 20,
+    marginVertical: 8,
+    marginHorizontal: 16,
   },
 });
