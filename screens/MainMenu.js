@@ -1,5 +1,6 @@
 import React from 'react';
 import { View, Text, StyleSheet, Button } from 'react-native';
+import UploadButton from '../components/uploadButton';
 
 const MainMenu = ({ navigation }) => {
   return (
@@ -8,6 +9,7 @@ const MainMenu = ({ navigation }) => {
       <Button title="Army" onPress={() => navigation.navigate('Army')} />
       <Button title="Play" onPress={() => navigation.navigate('Play')} />
       <Button title="Settings" onPress={() => navigation.navigate('Settings')} />
+      <UploadButton/>
     </View>
   );
 };
