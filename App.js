@@ -6,6 +6,7 @@ import Login from './screens/login';
 import MainMenu from './screens/MainMenu';
 import Army from './screens/Army';
 import Play from './screens/Play';
+import TestPlay from './screens/TestPlay';
 import CreateArmy from './screens/CreateArmy'; // Import the CreateArmy screen
 import { auth } from './firebase';
 
@@ -38,6 +39,8 @@ const App = () => {
             <Stack.Screen name="Play" component={Play} />
             <Stack.Screen name="Settings" component={Settings} />
             <Stack.Screen name="CreateArmy" component={CreateArmy} />
+            <Stack.Screen name="TestPlay" component={TestPlay} />
+
           </>
         ) : (
           <Stack.Screen name="Login" component={Login} />

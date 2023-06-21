@@ -34,6 +34,8 @@ const Play = ({ navigation }) => {
       </Picker>
       <Button title="Campaign" onPress={() => navigation.navigate('Campaign')} />
       <Button title="Multiplayer" onPress={() => navigation.navigate('Multiplayer')} />
+      <Button title="TestPlay" onPress={() => navigation.navigate('TestPlay')} />
+
     </View>
   );
 };
