@@ -1,6 +1,8 @@
+//screens/testPlay.js
 import React from 'react';
 import { View, StyleSheet, Animated } from 'react-native';
 import Map from '../components/map';
+import Game from '../components/game'; // Import the Game component
 import { map1, map2, warhammerMap } from '../maps/TestMap';
 import { PinchGestureHandler } from 'react-native-gesture-handler';
 
@@ -15,6 +17,7 @@ const TestPlay = () => {
 
   return (
     <View style={styles.container}>
+      <Game /> 
       <PinchGestureHandler onGestureEvent={onPinchEvent}>
         <Animated.View style={[styles.mapy, { transform: [{ scale: scale }] }]}>
           <Map mapData={warhammerMap} />
