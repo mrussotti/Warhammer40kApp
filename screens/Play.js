@@ -1,3 +1,4 @@
+// screens/Play.js
 import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, Button, Alert, ActivityIndicator } from 'react-native';
 import { Picker } from '@react-native-picker/picker';
@@ -38,10 +39,10 @@ const Play = ({ navigation }) => {
     if (!selectedArmy) {
       Alert.alert('Please select an army before proceeding.');
     } else {
-      navigation.navigate(screenName);
+      navigation.navigate(screenName, { armyId: selectedArmy });
     }
   };
-
+  
   return (
     <View style={styles.container}>
       <View style={styles.titleContainer}>

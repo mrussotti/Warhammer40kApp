@@ -1,3 +1,8 @@
-//gamePhases/deyploymentPhase.js
-export const deploymentPhase = () => {
-  };
+// gamePhases/deploymentPhase.js
+
+
+
+
+export const deploymentPhase = (army) => {
+    return army.squads;
+};

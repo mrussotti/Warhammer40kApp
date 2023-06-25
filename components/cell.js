@@ -1,11 +1,12 @@
+// components/cell.js
 import React from 'react';
-import { View, Text, StyleSheet } from 'react-native';
+import { TouchableOpacity, Text, StyleSheet } from 'react-native';
 
-const Cell = ({ cellData }) => {
+const Cell = ({ cellData, onPress }) => {
     return (
-        <View style={styles.cell}>
+        <TouchableOpacity style={styles.cell} onPress={onPress}>
           <Text>{cellData}</Text>
-        </View>
+        </TouchableOpacity>
       );
     };
 

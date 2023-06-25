@@ -1,3 +1,4 @@
+//maps.TestMap.js
 export const map1 = [
     ['cell1', 'cell2', 'cell3'],
     ['cell4', 'cell5', 'cell6'],
@@ -10,4 +11,4 @@ export const map1 = [
     ['cell16', 'cell17', 'cell18'],
   ];
   
-export const warhammerMap = Array(20).fill().map(() => Array(10).fill('cell'));
+  export const warhammerMap = Array(20).fill().map(() => Array(10).fill('cell'));

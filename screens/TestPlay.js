@@ -1,42 +1,52 @@
-//screens/testPlay.js
-import React from 'react';
+// screens/TestPlay.js
+import React, { useState, useEffect } from 'react';
 import { View, StyleSheet, Animated } from 'react-native';
-import Map from '../components/map';
-import Game from '../components/game'; // Import the Game component
+import { db } from '../firebase';
+import Game from '../components/game';
 import { map1, map2, warhammerMap } from '../maps/TestMap';
 import { PinchGestureHandler } from 'react-native-gesture-handler';
 
-const TestPlay = () => {
-  // Define the initial state of the game here, such as the positions of the units
-  const scale = new Animated.Value(1);
+const TestPlay = ({ route }) => {
+    const [army, setArmy] = useState(null);
+    const map = warhammerMap; // Define your map here
 
-  const onPinchEvent = Animated.event(
-    [{ nativeEvent: { scale: scale } }],
-    { useNativeDriver: true }
-  );
+    useEffect(() => {
+        const fetchArmy = async () => {
+            const armySnapshot = await db.collection('Armies').doc(route.params.armyId).get();
+            setArmy(armySnapshot.data());
+        };
 
-  return (
-    <View style={styles.container}>
-      <Game /> 
-      <PinchGestureHandler onGestureEvent={onPinchEvent}>
-        <Animated.View style={[styles.mapy, { transform: [{ scale: scale }] }]}>
-          <Map mapData={warhammerMap} />
-        </Animated.View>
-      </PinchGestureHandler>
-      {/* Add other components as needed, such as a status bar, controls, etc. */}
-    </View>
-  );
+        fetchArmy();
+    }, [route.params.armyId]);
+
+    const scale = new Animated.Value(1);
+
+    const onPinchEvent = Animated.event(
+        [{ nativeEvent: { scale: scale } }],
+        { useNativeDriver: true }
+    );
+
+    return (
+        <View style={styles.container}>
+            <PinchGestureHandler onGestureEvent={onPinchEvent}>
+                <Animated.View style={[styles.mapy, { transform: [{ scale: scale }] }]}>
+                {army && map && <Game army={army} map={map} />}
+                </Animated.View>
+            </PinchGestureHandler>
+        </View>
+    );
 };
 
+
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  mapy: {
-    flex: 1,
-  },
+    container: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    mapy: {
+        flex: 1,
+    },
 });
 
 export default TestPlay;
