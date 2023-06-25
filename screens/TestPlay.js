@@ -1,6 +1,6 @@
 // screens/TestPlay.js
 import React, { useState, useEffect } from 'react';
-import { View, StyleSheet, Animated } from 'react-native';
+import { View, StyleSheet, Animated, Text } from 'react-native';
 import { db } from '../firebase';
 import Game from '../components/game';
 import { map1, map2, warhammerMap } from '../maps/TestMap';
@@ -13,8 +13,10 @@ const TestPlay = ({ route }) => {
     useEffect(() => {
         const fetchArmy = async () => {
             const armySnapshot = await db.collection('Armies').doc(route.params.armyId).get();
+            console.log(armySnapshot.data()); // Log the army data
             setArmy(armySnapshot.data());
         };
+        
 
         fetchArmy();
     }, [route.params.armyId]);
@@ -30,11 +32,12 @@ const TestPlay = ({ route }) => {
         <View style={styles.container}>
             <PinchGestureHandler onGestureEvent={onPinchEvent}>
                 <Animated.View style={[styles.mapy, { transform: [{ scale: scale }] }]}>
-                {army && map && <Game army={army} map={map} />}
+                {army ? <Game army={army} map={map} /> : <Text>Loading...</Text>}
                 </Animated.View>
             </PinchGestureHandler>
         </View>
     );
+    
 };
 
 
