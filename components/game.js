@@ -1,8 +1,7 @@
+//components/game.js
 import React, { useState, useEffect } from 'react';
 import { View, Text, Button } from 'react-native';
 import GameMap from './gameMap';
-// import { deploymentPhase } from '../gamePhases/deploymentPhase';
-// import { movementPhase } from '../gamePhases/movementPhase';
 import { Picker } from '@react-native-picker/picker';
 
 const Game = ({ army, map: initialMap }) => {
@@ -12,12 +11,9 @@ const Game = ({ army, map: initialMap }) => {
     const [phase, setPhase] = useState(0);
     const [map, setMap] = useState(initialMap);
     const [unitsToDeploy, setUnitsToDeploy] = useState(army.units);
+    const [selectedUnit, setSelectedUnit] = useState(null);
     const units =  ['Unit1', 'Unit2', 'Unit3', 'Unit4', 'Unit5']
     
-    
-
-
-
     useEffect(() => {
         const fetchUnitsForArmy = async () => {
             units = await fetchUnits(army.units); // Replace with your function to fetch units
@@ -29,7 +25,7 @@ const Game = ({ army, map: initialMap }) => {
     
     // ----------------- Constants -----------------
     const players = ['Player 1', 'Player 2']; // Assuming a 2-player game
-    const phases = ['Deployment', 'Movement', 'Psychic', 'Ranged', 'Charge', 'Melee', 'Shock'];//deployment and scoreboard is its own
+    const phases = ['Deployment', 'Movement', 'Psychic', 'Ranged', 'Charge', 'Melee', 'Shock'];
 
     // ----------------- Phase Transition Function -----------------
     const nextPhase = () => {
@@ -99,8 +95,37 @@ const Game = ({ army, map: initialMap }) => {
     
 
     const handleMovementCellPress = (rowIndex, cellIndex) => {
-        // Handle cell press during movement phase
-        // ...
+        // If a unit is already selected for movement
+        if (selectedUnit) {
+            // If the selected cell is empty
+            if (!map[rowIndex][cellIndex].unit) {
+                // Move the unit to the selected cell
+                const newMap = [...map];
+                newMap[rowIndex][cellIndex] = { player: players[player], unit: selectedUnit.unit };
+                // Remove the unit from its original cell
+                newMap[selectedUnit.rowIndex][selectedUnit.cellIndex].unit = null;
+                setMap(newMap);
+
+                // Deselect the unit
+                setSelectedUnit(null);
+            }
+            // If the selected cell contains a unit
+            else {
+                // If the unit belongs to the current player
+                if (map[rowIndex][cellIndex].player === players[player]) {
+                    // Select the unit
+                    setSelectedUnit({ rowIndex, cellIndex, unit: map[rowIndex][cellIndex].unit });
+                }
+            }
+        }
+        // If no unit is selected
+        else {
+            // If the selected cell contains a unit that belongs to the current player
+            if (map[rowIndex][cellIndex].unit && map[rowIndex][cellIndex].player === players[player]) {
+                // Select the unit
+                setSelectedUnit({ rowIndex, cellIndex, unit: map[rowIndex][cellIndex].unit });
+            }
+        }
     };
 
 
@@ -131,6 +156,11 @@ const Game = ({ army, map: initialMap }) => {
     const movementPhase = (army) => {
         
     };
+
+        // ----------------- Game Phase State Reset -----------------
+        useEffect(() => {
+            setSelectedUnit(null);
+        }, [player, phase]);
 
     // ----------------- Map Initialization -----------------
     useEffect(() => {
