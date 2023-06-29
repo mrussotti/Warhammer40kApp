@@ -5,6 +5,7 @@ import GameMap from './gameMap';
 import { Picker } from '@react-native-picker/picker';
 import useFetchUnitsData from './FetchUnitsData';
 
+
 const Game = ({ armyId, map: initialMap }) => {
     const { isLoading, unitsData, error } = useFetchUnitsData(armyId);
 
@@ -55,13 +56,16 @@ const Game = ({ armyId, map: initialMap }) => {
     };
 
     const handleDeploymentCellPress = (rowIndex, cellIndex) => {
-        if (unitsData.length > 0) {
+        console.log(unitsToDeploy.length) // use unitsToDeploy instead of unitsData
+        if (unitsToDeploy.length > 0) {
             const newMap = [...map];
-            newMap[rowIndex][cellIndex] = { player: players[player], unit: unitsData[0] };
+            newMap[rowIndex][cellIndex] = { player: players[player], unit: unitsToDeploy[0] };
             setMap(newMap);
             setUnitsToDeploy(unitsToDeploy.slice(1));
+            console.log(unitsToDeploy.length, "dfasdfd")
         }
     };
+    
     
 
     const handleMovementCellPress = (rowIndex, cellIndex) => {
@@ -109,6 +113,8 @@ const Game = ({ armyId, map: initialMap }) => {
     return (
         <View>
             <Text>Turn: {turn + 1}, {players[player]}'s {phases[phase]} Phase</Text>
+            <Button title="Next Phase" onPress={nextPhase} />
+
             <GameMap map={map || []} onCellPress={handleCellPress} />
             {phase === 0 && (
                 <View>
@@ -120,10 +126,10 @@ const Game = ({ armyId, map: initialMap }) => {
                     </Picker>
                 </View>
             )}
-            <Button title="Next Phase" onPress={nextPhase} />
         </View>
     );
 };
+
 
 export default Game;
 
