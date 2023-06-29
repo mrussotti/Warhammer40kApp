@@ -3,7 +3,7 @@ import { TouchableOpacity, Text, StyleSheet } from 'react-native';
 
 const Cell = ({ cellData, onPress }) => {
     const backgroundColor = cellData && cellData.player ? 'blue' : '#99cc99';
-    const text = cellData && cellData.unit ? cellData.unit : '';
+    const text = cellData && cellData.unit ? cellData.unit.name : ''; // Updated line
 
     return (
         <TouchableOpacity style={[styles.cell, { backgroundColor }]} onPress={onPress}>
@@ -11,6 +11,7 @@ const Cell = ({ cellData, onPress }) => {
         </TouchableOpacity>
     );
 };
+
 
 const styles = StyleSheet.create({
     cell: {

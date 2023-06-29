@@ -1,3 +1,4 @@
+//uploadFactions.js
 import { db } from './firebase';
 
 export default async function uploadFactions() {
