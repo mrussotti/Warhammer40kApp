@@ -3,10 +3,10 @@ import React from 'react';
 import { View, StyleSheet, TouchableOpacity } from 'react-native';
 import Cell from './cell';
 
-const GameMap = ({ mapData, onCellPress }) => {
+const GameMap = ({ map, onCellPress }) => {
   return (
     <View>
-      {mapData.map((row, rowIndex) => (
+      {map.map((row, rowIndex) => (
         <View key={rowIndex} style={styles.row}>
           {row.map((cellData, cellIndex) => ( // cellData is defined here
             <TouchableOpacity key={cellIndex} onPress={() => onCellPress(rowIndex, cellIndex)}>

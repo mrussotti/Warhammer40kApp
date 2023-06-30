@@ -3,7 +3,6 @@ import { View, Text, StyleSheet, Button, FlatList } from 'react-native';
 import { db, auth } from '../firebase';
 import { useIsFocused } from '@react-navigation/native';
 
-
 const Army = ({ navigation }) => {
   const [armies, setArmies] = useState([]);
   const isFocused = useIsFocused();
@@ -29,7 +28,10 @@ const Army = ({ navigation }) => {
   const renderItem = ({ item }) => (
     <View style={styles.item}>
       <Text style={styles.title}>Faction: {item.faction}</Text>
-      <Text style={styles.title}>Units: {item.units}</Text>
+      <Text style={styles.title}>Units:</Text>
+      {item.units.map((unit, index) => (
+        <Text key={index}>{unit.name}</Text>
+      ))}
     </View>
   );
 
