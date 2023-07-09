@@ -1,3 +1,3 @@
-# SSFMobile
+# Warhammer 40k App
 
-The official mobile app of summitstreetfitness.org  
+Pretty self explanatory ngl  
