@@ -7,6 +7,7 @@ import useFetchUnitsData from './FetchUnitsData';
 import UnitInfoModal from './UnitInfoModal';  // import here
 
 
+
 const Game = ({ armyId, map: initialMap }) => {
     const { isLoading, unitsData, error } = useFetchUnitsData(armyId);
 
@@ -18,6 +19,12 @@ const Game = ({ armyId, map: initialMap }) => {
     const [selectedUnit, setSelectedUnit] = useState(null);
     const [movedUnits, setMovedUnits] = useState([]);
     const [moveInstruction, setMoveInstruction] = useState(null);
+    const [shootingTarget, setShootingTarget] = useState(null);
+
+
+    const onSelectTarget = (targetUnit) => {
+        setShootingTarget(targetUnit);
+    };
     const handleMoveInstruction = (unit) => {
         setMoveInstruction(unit);
         setSelectedUnit(null);  // Close the modal
@@ -37,7 +44,7 @@ const Game = ({ armyId, map: initialMap }) => {
     }, [isLoading, unitsData]);
 
     const players = ['Player 1', 'Player 2'];
-    const phases = ['Deployment', 'Movement', 'Psychic', 'Ranged', 'Charge', 'Melee', 'Shock'];
+    const phases = ['Deployment', 'Movement', 'Psychic', 'Shooting', 'Charge', 'Melee', 'Shock'];
 
     const nextPhase = () => {
         if (phase === 0 && unitsToDeploy.length === 0) {
@@ -60,7 +67,9 @@ const Game = ({ armyId, map: initialMap }) => {
 
     const handleCellPress = (rowIndex, cellIndex) => {
         const cellData = map[rowIndex][cellIndex];
-
+        if (cellData.unit && cellData.player === players[player]) {
+            setSelectedUnit({ ...cellData.unit, position: [rowIndex, cellIndex] });  // Use data from the unit
+        }
         switch (phases[phase]) {
             case 'Deployment':
                 handleDeploymentCellPress(rowIndex, cellIndex);
@@ -71,6 +80,13 @@ const Game = ({ armyId, map: initialMap }) => {
                     setMoveInstruction(null);  // Clear the move instruction
                 } else {
                     handleMovementCellPress(rowIndex, cellIndex, cellData);
+                }
+                break;
+            case 'Shooting':
+                if (selectedUnit) {
+                    handleShooting(selectedUnit, cellData.unit);
+                } else {
+                    onSelectTarget(cellData.unit);
                 }
                 break;
         }
@@ -86,33 +102,33 @@ const Game = ({ armyId, map: initialMap }) => {
         }
     };
 
-    const handleMovementCellPress = (rowIndex, cellIndex) => {
-        const cellData = map[rowIndex][cellIndex];  // Get the cell data
+    const handleMovementCellPress = (rowIndex, cellIndex) => {//delete this?
+        // const cellData = map[rowIndex][cellIndex];  // Get the cell data
 
-        if (selectedUnit) {
-            const maxMovementDistance = parseInt(selectedUnit.unit.gameData.movement);
-            const [selectedUnitRow, selectedUnitCell] = selectedUnit.position;
-            const distance = Math.abs(rowIndex - selectedUnitRow) + Math.abs(cellIndex - selectedUnitCell);
+        // if (selectedUnit) {
+        //     const maxMovementDistance = parseInt(selectedUnit.unit.gameData.movement);
+        //     const [selectedUnitRow, selectedUnitCell] = selectedUnit.position;
+        //     const distance = Math.abs(rowIndex - selectedUnitRow) + Math.abs(cellIndex - selectedUnitCell);
 
-            // Check if this unit has already moved this turn
-            if (movedUnits.includes(selectedUnit.unit.id)) {
-                setSelectedUnit(null);
-                return;
-            }
+        //     // Check if this unit has already moved this turn
+        //     if (movedUnits.includes(selectedUnit.unit.id)) {
+        //         setSelectedUnit(null);
+        //         return;
+        //     }
 
-            if (distance <= maxMovementDistance && !map[rowIndex][cellIndex].unit) {
-                const newMap = [...map];
-                newMap[rowIndex][cellIndex] = { player: players[player], unit: selectedUnit.unit };
-                newMap[selectedUnitRow][selectedUnitCell] = { player: null, unit: null };
-                // setMap(newMap);
-                setSelectedUnit(null);
-                // setMovedUnits([...movedUnits, selectedUnit.unit.id]);
-            }
-        } else {
-            if (cellData.unit && cellData.player === players[player]) {
-                setSelectedUnit({ ...cellData.unit, position: [rowIndex, cellIndex] });  // Use data from the unit
-            }
-        }
+        //     if (distance <= maxMovementDistance && !map[rowIndex][cellIndex].unit) {
+        //         const newMap = [...map];
+        //         newMap[rowIndex][cellIndex] = { player: players[player], unit: selectedUnit.unit };
+        //         newMap[selectedUnitRow][selectedUnitCell] = { player: null, unit: null };
+        //         // setMap(newMap);
+        //         setSelectedUnit(null);
+        //         // setMovedUnits([...movedUnits, selectedUnit.unit.id]);
+        //     }
+        // } else {
+        //     if (cellData.unit && cellData.player === players[player]) {
+        //         setSelectedUnit({ ...cellData.unit, position: [rowIndex, cellIndex] });  // Use data from the unit
+        //     }
+        // }
     };
 
     useEffect(() => {
@@ -132,6 +148,11 @@ const Game = ({ armyId, map: initialMap }) => {
 
     const movementPhase = (unitsData) => {
         // logic for movement phase
+    };
+
+    // Add the handleShooting function.
+    const handleShooting = (shootingUnit, targetUnit) => {
+        // TODO: Implement the logic for shooting.
     };
 
 
@@ -183,6 +204,8 @@ const Game = ({ armyId, map: initialMap }) => {
                 onClose={() => setSelectedUnit(null)}
                 phase={phases[phase]}
                 onMoveUnit={handleMoveInstruction}  // Note this change
+                shootPhase={ handleShooting }
+
             />
         </View>
     );

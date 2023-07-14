@@ -1,7 +1,7 @@
 // components/UnitInfoModal.js
 import { Modal, Text, View, TouchableOpacity, StyleSheet } from 'react-native';
 
-const UnitInfoModal = ({ visible, unit, onClose, phase, onMoveUnit }) => {
+const UnitInfoModal = ({ visible, unit, onClose, phase, onMoveUnit, shootPhase }) => {
     return (
         <Modal
             animationType="slide"
@@ -33,6 +33,14 @@ const UnitInfoModal = ({ visible, unit, onClose, phase, onMoveUnit }) => {
                                     <Text style={styles.actionButtonText}>Move</Text>
                                 </TouchableOpacity>
                             )}
+                            {phase === 'Shooting' && (
+                                <TouchableOpacity
+                                    style={styles.actionButton}
+                                    onPress={() => onMoveUnit(unit)}
+                                >
+                                    <Text style={styles.actionButtonText}>Shoot</Text>
+                                </TouchableOpacity>
+                            )}
                             {/* You can add more actions depending on different phases and unit state */}
                         </>
                     )}
@@ -50,42 +58,55 @@ const UnitInfoModal = ({ visible, unit, onClose, phase, onMoveUnit }) => {
 
 
 const styles = StyleSheet.create({
-  centeredView: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-    marginTop: 22
-  },
-  modalView: {
-    margin: 20,
-    backgroundColor: "white",
-    borderRadius: 20,
-    padding: 35,
-    alignItems: "center",
-    shadowColor: "#000",
-    shadowOffset: {
-      width: 0,
-      height: 2
+    centeredView: {
+        flex: 1,
+        justifyContent: "center",
+        alignItems: "center",
+        marginTop: 22
     },
-    shadowOpacity: 0.25,
-    shadowRadius: 3.84,
-    elevation: 5
-  },
-  modalText: {
-    marginBottom: 15,
-    textAlign: "center"
-  },
-  closeButton: {
-    backgroundColor: "#2196F3",
-    borderRadius: 20,
-    padding: 10,
-    elevation: 2
-  },
-  closeButtonText: {
-    color: "white",
-    fontWeight: "bold",
-    textAlign: "center"
-  }
+    modalView: {
+        margin: 20,
+        backgroundColor: "white",
+        borderRadius: 20,
+        padding: 35,
+        alignItems: "center",
+        shadowColor: "#000",
+        shadowOffset: {
+            width: 0,
+            height: 2
+        },
+        shadowOpacity: 0.25,
+        shadowRadius: 3.84,
+        elevation: 5
+    },
+    modalText: {
+        marginBottom: 15,
+        textAlign: "center"
+    },
+    closeButton: {
+        backgroundColor: "#2196F3",
+        borderRadius: 20,
+        padding: 10,
+        elevation: 2,
+        margin: 3
+    },
+    closeButtonText: {
+        color: "white",
+        fontWeight: "bold",
+        textAlign: "center"
+    },
+    actionButton: {
+        backgroundColor: "maroon",
+        borderRadius: 20,
+        padding: 10,
+        margin: 3,
+        elevation: 2
+    },
+    actionButtonText: {
+        color: "white",
+        fontWeight: "bold",
+        textAlign: "center"
+    }
 });
 
 export default UnitInfoModal;
