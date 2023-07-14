@@ -20,6 +20,8 @@ const Game = ({ armyId, map: initialMap }) => {
     const [movedUnits, setMovedUnits] = useState([]);
     const [moveInstruction, setMoveInstruction] = useState(null);
     const [shootingTarget, setShootingTarget] = useState(null);
+    const [shootInstruction, setShootInstruction] = useState(null);
+
 
 
     const onSelectTarget = (targetUnit) => {
@@ -27,6 +29,10 @@ const Game = ({ armyId, map: initialMap }) => {
     };
     const handleMoveInstruction = (unit) => {
         setMoveInstruction(unit);
+        setSelectedUnit(null);  // Close the modal
+    };
+    const handleShootInstruction = (unit) => {
+        setShootInstruction(unit);
         setSelectedUnit(null);  // Close the modal
     };
 
@@ -78,15 +84,14 @@ const Game = ({ armyId, map: initialMap }) => {
                 if (moveInstruction) {
                     handleMoveUnit([rowIndex, cellIndex], moveInstruction);
                     setMoveInstruction(null);  // Clear the move instruction
-                } else {
-                    handleMovementCellPress(rowIndex, cellIndex, cellData);
                 }
                 break;
             case 'Shooting':
-                if (selectedUnit) {
-                    handleShooting(selectedUnit, cellData.unit);
-                } else {
-                    onSelectTarget(cellData.unit);
+                if (shootInstruction) {
+                    handleShooting(shootInstruction, cellData.unit);
+                    setShootInstruction(null);  // Clear the shoot instruction
+                } else if (cellData.unit && cellData.player === players[player]) {
+                    setSelectedUnit({ ...cellData.unit, position: [rowIndex, cellIndex] });  // Use data from the unit
                 }
                 break;
         }
@@ -102,34 +107,7 @@ const Game = ({ armyId, map: initialMap }) => {
         }
     };
 
-    const handleMovementCellPress = (rowIndex, cellIndex) => {//delete this?
-        // const cellData = map[rowIndex][cellIndex];  // Get the cell data
 
-        // if (selectedUnit) {
-        //     const maxMovementDistance = parseInt(selectedUnit.unit.gameData.movement);
-        //     const [selectedUnitRow, selectedUnitCell] = selectedUnit.position;
-        //     const distance = Math.abs(rowIndex - selectedUnitRow) + Math.abs(cellIndex - selectedUnitCell);
-
-        //     // Check if this unit has already moved this turn
-        //     if (movedUnits.includes(selectedUnit.unit.id)) {
-        //         setSelectedUnit(null);
-        //         return;
-        //     }
-
-        //     if (distance <= maxMovementDistance && !map[rowIndex][cellIndex].unit) {
-        //         const newMap = [...map];
-        //         newMap[rowIndex][cellIndex] = { player: players[player], unit: selectedUnit.unit };
-        //         newMap[selectedUnitRow][selectedUnitCell] = { player: null, unit: null };
-        //         // setMap(newMap);
-        //         setSelectedUnit(null);
-        //         // setMovedUnits([...movedUnits, selectedUnit.unit.id]);
-        //     }
-        // } else {
-        //     if (cellData.unit && cellData.player === players[player]) {
-        //         setSelectedUnit({ ...cellData.unit, position: [rowIndex, cellIndex] });  // Use data from the unit
-        //     }
-        // }
-    };
 
     useEffect(() => {
         switch (phases[phase]) {
@@ -152,14 +130,11 @@ const Game = ({ armyId, map: initialMap }) => {
 
     // Add the handleShooting function.
     const handleShooting = (shootingUnit, targetUnit) => {
-        // TODO: Implement the logic for shooting.
+        console.log(shootingUnit.name + " shoots at " + targetUnit.name)
     };
 
 
     const handleMoveUnit = (newPosition, unit) => {
-        console.log(unit)
-        console.log("__________________________________")
-        console.log(unit.unit)
         const [newRowIndex, newCellIndex] = newPosition;
 
         const maxMovementDistance = parseInt(unit.gameData.movement);
@@ -203,9 +178,8 @@ const Game = ({ armyId, map: initialMap }) => {
                 unit={selectedUnit}
                 onClose={() => setSelectedUnit(null)}
                 phase={phases[phase]}
-                onMoveUnit={handleMoveInstruction}  // Note this change
-                shootPhase={ handleShooting }
-
+                onMoveUnit={handleMoveInstruction}
+                onShootUnit={handleShootInstruction}  // Note this change
             />
         </View>
     );

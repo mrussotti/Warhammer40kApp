@@ -1,7 +1,7 @@
 // components/UnitInfoModal.js
 import { Modal, Text, View, TouchableOpacity, StyleSheet } from 'react-native';
 
-const UnitInfoModal = ({ visible, unit, onClose, phase, onMoveUnit, shootPhase }) => {
+const UnitInfoModal = ({ visible, unit, onClose, phase, onMoveUnit, onShootUnit }) => {
     return (
         <Modal
             animationType="slide"
@@ -36,7 +36,7 @@ const UnitInfoModal = ({ visible, unit, onClose, phase, onMoveUnit, shootPhase }
                             {phase === 'Shooting' && (
                                 <TouchableOpacity
                                     style={styles.actionButton}
-                                    onPress={() => onMoveUnit(unit)}
+                                    onPress={() => onShootUnit(unit)}
                                 >
                                     <Text style={styles.actionButtonText}>Shoot</Text>
                                 </TouchableOpacity>
