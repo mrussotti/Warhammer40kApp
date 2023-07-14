@@ -73,9 +73,7 @@ const Game = ({ armyId, map: initialMap }) => {
 
     const handleCellPress = (rowIndex, cellIndex) => {
         const cellData = map[rowIndex][cellIndex];
-        if (cellData.unit && cellData.player === players[player]) {
-            setSelectedUnit({ ...cellData.unit, position: [rowIndex, cellIndex] });  // Use data from the unit
-        }
+    
         switch (phases[phase]) {
             case 'Deployment':
                 handleDeploymentCellPress(rowIndex, cellIndex);
@@ -84,6 +82,8 @@ const Game = ({ armyId, map: initialMap }) => {
                 if (moveInstruction) {
                     handleMoveUnit([rowIndex, cellIndex], moveInstruction);
                     setMoveInstruction(null);  // Clear the move instruction
+                } else if (cellData.unit && cellData.player === players[player]) {
+                    setSelectedUnit({ ...cellData.unit, position: [rowIndex, cellIndex] });  // Use data from the unit
                 }
                 break;
             case 'Shooting':
@@ -94,8 +94,15 @@ const Game = ({ armyId, map: initialMap }) => {
                     setSelectedUnit({ ...cellData.unit, position: [rowIndex, cellIndex] });  // Use data from the unit
                 }
                 break;
+            default:
+                if (cellData.unit && cellData.player === players[player]) {
+                    setSelectedUnit({ ...cellData.unit, position: [rowIndex, cellIndex] });  // Use data from the unit
+                }
+                break;
         }
     };
+    
+    
 
 
     const handleDeploymentCellPress = (rowIndex, cellIndex) => {
