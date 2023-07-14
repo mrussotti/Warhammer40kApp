@@ -1,3 +1,4 @@
+// components/game.js
 import React, { useState, useEffect } from 'react';
 import { View, Text, Button } from 'react-native';
 import GameMap from './gameMap';
@@ -53,15 +54,18 @@ const Game = ({ armyId, map: initialMap }) => {
     };
 
     const handleCellPress = (rowIndex, cellIndex) => {
+        const cellData = map[rowIndex][cellIndex];
+      
         switch (phases[phase]) {
-            case 'Deployment':
-                handleDeploymentCellPress(rowIndex, cellIndex);
-                break;
-            case 'Movement':
-                handleMovementCellPress(rowIndex, cellIndex);
-                break;
+          case 'Deployment':
+            handleDeploymentCellPress(rowIndex, cellIndex);
+            break;
+          case 'Movement':
+            handleMovementCellPress(rowIndex, cellIndex, cellData);
+            break;
         }
-    };
+      };
+      
 
     const handleDeploymentCellPress = (rowIndex, cellIndex) => {
         if (unitsToDeploy.length > 0) {
@@ -73,6 +77,8 @@ const Game = ({ armyId, map: initialMap }) => {
     };
 
     const handleMovementCellPress = (rowIndex, cellIndex) => {
+        const cellData = map[rowIndex][cellIndex];  // Get the cell data
+
         if (selectedUnit) {
             const maxMovementDistance = parseInt(selectedUnit.unit.gameData.movement);
             const [selectedUnitRow, selectedUnitCell] = selectedUnit.position;
@@ -93,11 +99,11 @@ const Game = ({ armyId, map: initialMap }) => {
                 setMovedUnits([...movedUnits, selectedUnit.unit.id]);
             }
         } else {
-            if (map[rowIndex][cellIndex].unit && map[rowIndex][cellIndex].player === players[player]) {
-                setSelectedUnit({ rowIndex, cellIndex, unit: map[rowIndex][cellIndex].unit, position: [rowIndex, cellIndex] });
+            if (cellData.unit && cellData.player === players[player]) {
+                setSelectedUnit({ ...cellData.unit, position: [rowIndex, cellIndex] });  // Use data from the unit
             }
-        }
-    };
+          }
+        };
 
     useEffect(() => {
         switch (phases[phase]) {

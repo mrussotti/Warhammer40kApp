@@ -2,31 +2,40 @@
 import { Modal, Text, View, TouchableOpacity, StyleSheet } from 'react-native';
 
 const UnitInfoModal = ({ visible, unit, onClose }) => {
-  return (
-    <Modal
-      animationType="slide"
-      transparent={true}
-      visible={visible}
-    >
-      <View style={styles.centeredView}>
-        <View style={styles.modalView}>
-          {unit && (
-            <>
-              <Text style={styles.modalText}>Name: {unit.name}</Text>
-              {/* More stats here */}
-            </>
-          )}
-          <TouchableOpacity
-            style={styles.closeButton}
-            onPress={onClose}
-          >
-            <Text style={styles.closeButtonText}>Close</Text>
-          </TouchableOpacity>
-        </View>
-      </View>
-    </Modal>
-  );
+    return (
+        <Modal
+            animationType="slide"
+            transparent={true}
+            visible={visible}
+        >
+            <View style={styles.centeredView}>
+                <View style={styles.modalView}>
+                    {unit && (
+                        <>
+                            <Text style={styles.modalText}>Name: {unit.name}</Text>
+                            <Text style={styles.modalText}>Movement: {unit.gameData.movement}</Text>
+                            <Text style={styles.modalText}>Weapon Skill: {unit.gameData.weaponSkill}</Text>
+                            <Text style={styles.modalText}>Ballistic Skill: {unit.gameData.ballisticSkill}</Text>
+                            <Text style={styles.modalText}>Strength: {unit.gameData.strength}</Text>
+                            <Text style={styles.modalText}>Toughness: {unit.gameData.toughness}</Text>
+                            <Text style={styles.modalText}>Wounds: {unit.gameData.wounds}</Text>
+                            <Text style={styles.modalText}>Attacks: {unit.gameData.attacks}</Text>
+                            <Text style={styles.modalText}>Leadership: {unit.gameData.leadership}</Text>
+                            <Text style={styles.modalText}>Save: {unit.gameData.save}</Text>
+                        </>
+                    )}
+                    <TouchableOpacity
+                        style={styles.closeButton}
+                        onPress={onClose}
+                    >
+                        <Text style={styles.closeButtonText}>Close</Text>
+                    </TouchableOpacity>
+                </View>
+            </View>
+        </Modal>
+    );
 };
+
 
 const styles = StyleSheet.create({
   centeredView: {
