@@ -3,6 +3,8 @@ import { View, Text, Button } from 'react-native';
 import GameMap from './gameMap';
 import { Picker } from '@react-native-picker/picker';
 import useFetchUnitsData from './FetchUnitsData';
+import UnitInfoModal from './UnitInfoModal';  // import here
+
 
 const Game = ({ armyId, map: initialMap }) => {
     const { isLoading, unitsData, error } = useFetchUnitsData(armyId);
@@ -75,13 +77,13 @@ const Game = ({ armyId, map: initialMap }) => {
             const maxMovementDistance = parseInt(selectedUnit.unit.gameData.movement);
             const [selectedUnitRow, selectedUnitCell] = selectedUnit.position;
             const distance = Math.abs(rowIndex - selectedUnitRow) + Math.abs(cellIndex - selectedUnitCell);
-    
+
             // Check if this unit has already moved this turn
             if (movedUnits.includes(selectedUnit.unit.id)) {
                 setSelectedUnit(null);
                 return;
             }
-            
+
             if (distance <= maxMovementDistance && !map[rowIndex][cellIndex].unit) {
                 const newMap = [...map];
                 newMap[rowIndex][cellIndex] = { player: players[player], unit: selectedUnit.unit };
@@ -96,7 +98,7 @@ const Game = ({ armyId, map: initialMap }) => {
             }
         }
     };
-    
+
     useEffect(() => {
         switch (phases[phase]) {
             case 'Deployment':
@@ -132,6 +134,12 @@ const Game = ({ armyId, map: initialMap }) => {
                     </Picker>
                 </View>
             )}
+
+            <UnitInfoModal
+                visible={!!selectedUnit}
+                unit={selectedUnit}
+                onClose={() => setSelectedUnit(null)}
+            />
         </View>
     );
 };
