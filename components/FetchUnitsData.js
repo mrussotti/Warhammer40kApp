@@ -15,7 +15,7 @@ const useFetchUnitsData = (armyId) => {
                 if(armyData){
                     const squads = armyData.units;
                     setUnitsData(squads);
-                    console.log(unitsData)
+                    //console.log(unitsData)
                     setIsLoading(false);
                 }else{
                     setIsLoading(false);

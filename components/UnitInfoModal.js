@@ -1,7 +1,7 @@
 // components/UnitInfoModal.js
 import { Modal, Text, View, TouchableOpacity, StyleSheet } from 'react-native';
 
-const UnitInfoModal = ({ visible, unit, onClose }) => {
+const UnitInfoModal = ({ visible, unit, onClose, phase, onMoveUnit }) => {
     return (
         <Modal
             animationType="slide"
@@ -22,6 +22,18 @@ const UnitInfoModal = ({ visible, unit, onClose }) => {
                             <Text style={styles.modalText}>Attacks: {unit.gameData.attacks}</Text>
                             <Text style={styles.modalText}>Leadership: {unit.gameData.leadership}</Text>
                             <Text style={styles.modalText}>Save: {unit.gameData.save}</Text>
+
+                            {/* Adding actions section */}
+                            <Text style={styles.modalText}>Actions:</Text>
+                            {phase === 'Movement' && !unit.moved && (
+                                <TouchableOpacity
+                                    style={styles.actionButton}
+                                    onPress={() => onMoveUnit(unit)}
+                                >
+                                    <Text style={styles.actionButtonText}>Move</Text>
+                                </TouchableOpacity>
+                            )}
+                            {/* You can add more actions depending on different phases and unit state */}
                         </>
                     )}
                     <TouchableOpacity

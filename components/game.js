@@ -17,6 +17,11 @@ const Game = ({ armyId, map: initialMap }) => {
     const [unitsToDeploy, setUnitsToDeploy] = useState([]);
     const [selectedUnit, setSelectedUnit] = useState(null);
     const [movedUnits, setMovedUnits] = useState([]);
+    const [moveInstruction, setMoveInstruction] = useState(null);
+    const handleMoveInstruction = (unit) => {
+        setMoveInstruction(unit);
+        setSelectedUnit(null);  // Close the modal
+    };
 
     useEffect(() => {
         if (!isLoading && unitsData) {
@@ -55,17 +60,22 @@ const Game = ({ armyId, map: initialMap }) => {
 
     const handleCellPress = (rowIndex, cellIndex) => {
         const cellData = map[rowIndex][cellIndex];
-      
+
         switch (phases[phase]) {
-          case 'Deployment':
-            handleDeploymentCellPress(rowIndex, cellIndex);
-            break;
-          case 'Movement':
-            handleMovementCellPress(rowIndex, cellIndex, cellData);
-            break;
+            case 'Deployment':
+                handleDeploymentCellPress(rowIndex, cellIndex);
+                break;
+            case 'Movement':
+                if (moveInstruction) {
+                    handleMoveUnit([rowIndex, cellIndex], moveInstruction);
+                    setMoveInstruction(null);  // Clear the move instruction
+                } else {
+                    handleMovementCellPress(rowIndex, cellIndex, cellData);
+                }
+                break;
         }
-      };
-      
+    };
+
 
     const handleDeploymentCellPress = (rowIndex, cellIndex) => {
         if (unitsToDeploy.length > 0) {
@@ -94,16 +104,16 @@ const Game = ({ armyId, map: initialMap }) => {
                 const newMap = [...map];
                 newMap[rowIndex][cellIndex] = { player: players[player], unit: selectedUnit.unit };
                 newMap[selectedUnitRow][selectedUnitCell] = { player: null, unit: null };
-                setMap(newMap);
+                // setMap(newMap);
                 setSelectedUnit(null);
-                setMovedUnits([...movedUnits, selectedUnit.unit.id]);
+                // setMovedUnits([...movedUnits, selectedUnit.unit.id]);
             }
         } else {
             if (cellData.unit && cellData.player === players[player]) {
                 setSelectedUnit({ ...cellData.unit, position: [rowIndex, cellIndex] });  // Use data from the unit
             }
-          }
-        };
+        }
+    };
 
     useEffect(() => {
         switch (phases[phase]) {
@@ -123,6 +133,32 @@ const Game = ({ armyId, map: initialMap }) => {
     const movementPhase = (unitsData) => {
         // logic for movement phase
     };
+
+
+    const handleMoveUnit = (newPosition, unit) => {
+        console.log(unit)
+        console.log("__________________________________")
+        console.log(unit.unit)
+        const [newRowIndex, newCellIndex] = newPosition;
+
+        const maxMovementDistance = parseInt(unit.gameData.movement);
+        const [selectedUnitRow, selectedUnitCell] = unit.position;
+        const distance = Math.abs(newRowIndex - selectedUnitRow) + Math.abs(newCellIndex - selectedUnitCell);
+
+        // Check if this unit has already moved this turn
+        if (movedUnits.includes(unit.id)) {
+            return;
+        }
+
+        if (distance <= maxMovementDistance && !map[newRowIndex][newCellIndex].unit) {
+            const newMap = [...map];
+            newMap[newRowIndex][newCellIndex] = { player: players[player], unit: unit };
+            newMap[selectedUnitRow][selectedUnitCell] = { player: null, unit: null };
+            setMap(newMap);
+            setMovedUnits([...movedUnits, unit.id]);
+        }
+    };
+
 
     return (
         <View>
@@ -145,6 +181,8 @@ const Game = ({ armyId, map: initialMap }) => {
                 visible={!!selectedUnit}
                 unit={selectedUnit}
                 onClose={() => setSelectedUnit(null)}
+                phase={phases[phase]}
+                onMoveUnit={handleMoveInstruction}  // Note this change
             />
         </View>
     );
