@@ -1,4 +1,3 @@
-//uploadFactions.js
 import { db } from './firebase';
 
 export default async function uploadFactions() {
@@ -23,7 +22,42 @@ export default async function uploadFactions() {
                         "attacks": 1,
                         "leadership": 7,
                         "save": "3+"
-                    }
+                    },
+                    "wargear": [
+                        {
+                            "name": "Boltgun",
+                            "range": "24\"",
+                            "type": "Rapid Fire 1",
+                            "strength": 4,
+                            "armorPenetration": 0,
+                            "damage": 1
+                        },
+                        {
+                            "name": "Bolt Pistol",
+                            "range": "12\"",
+                            "type": "Pistol 1",
+                            "strength": 4,
+                            "armorPenetration": 0,
+                            "damage": 1
+                        },
+                        {
+                            "name": "Frag Grenades",
+                            "range": "6\"",
+                            "type": "Grenade D6",
+                            "strength": 3,
+                            "armorPenetration": 0,
+                            "damage": 1
+                        },
+                        {
+                            "name": "Krak Grenades",
+                            "range": "6\"",
+                            "type": "Grenade 1",
+                            "strength": 6,
+                            "armorPenetration": -1,
+                            "damage": "D3"
+                        }
+                    ],
+                    "abilities": ["And They Shall Know No Fear", "Combat Squads", "Combat Tactics"]
                 },
                 {
                     "name": "Assault Squad",
@@ -39,7 +73,46 @@ export default async function uploadFactions() {
                         "attacks": 1,
                         "leadership": 7,
                         "save": "3+"
-                    }
+                    },
+                    "wargear": [
+                        {
+                            "name": "Chainsword",
+                            "range": "Melee",
+                            "type": "Melee",
+                            "strength": "User",
+                            "armorPenetration": 0,
+                            "damage": 1
+                        },
+                        {
+                            "name": "Bolt Pistol",
+                            "range": "12\"",
+                            "type": "Pistol 1",
+                            "strength": 4,
+                            "armorPenetration": 0,
+                            "damage": 1
+                        },
+                        {
+                            "name": "Frag Grenades",
+                            "range": "6\"",
+                            "type": "Grenade D6",
+                            "strength": 3,
+                            "armorPenetration": 0,
+                            "damage": 1
+                        },
+                        {
+                            "name": "Krak Grenades",
+                            "range": "6\"",
+                            "type": "Grenade 1",
+                            "strength": 6,
+                            "armorPenetration": -1,
+                            "damage": "D3"
+                        },
+                        {
+                            "name": "Jump Pack",
+                            "description": "Allows the unit to move swiftly over the battlefield, ignoring terrain and other obstacles."
+                        }
+                    ],
+                    "abilities": ["And They Shall Know No Fear", "Combat Squads", "Combat Tactics"]
                 },
                 {
                     "name": "Devastator Squad",
@@ -55,7 +128,46 @@ export default async function uploadFactions() {
                         "attacks": 1,
                         "leadership": 8,
                         "save": "3+"
-                    }
+                    },
+                    "wargear": [
+                        {
+                            "name": "Boltgun",
+                            "range": "24\"",
+                            "type": "Rapid Fire 1",
+                            "strength": 4,
+                            "armorPenetration": 0,
+                            "damage": 1
+                        },
+                        {
+                            "name": "Bolt Pistol",
+                            "range": "12\"",
+                            "type": "Pistol 1",
+                            "strength": 4,
+                            "armorPenetration": 0,
+                            "damage": 1
+                        },
+                        {
+                            "name": "Heavy Weapon",
+                            "description": "Can be a variety of heavy weapons such as a Heavy Bolter, Missile Launcher, Lascannon, etc."
+                        },
+                        {
+                            "name": "Frag Grenades",
+                            "range": "6\"",
+                            "type": "Grenade D6",
+                            "strength": 3,
+                            "armorPenetration": 0,
+                            "damage": 1
+                        },
+                        {
+                            "name": "Krak Grenades",
+                            "range": "6\"",
+                            "type": "Grenade 1",
+                            "strength": 6,
+                            "armorPenetration": -1,
+                            "damage": "D3"
+                        }
+                    ],
+                    "abilities": ["And They Shall Know No Fear", "Combat Squads", "Combat Tactics", "Signum"]
                 }
             ]
         },
@@ -77,7 +189,9 @@ export default async function uploadFactions() {
                         "attacks": 1,
                         "leadership": 6,
                         "save": "5+"
-                    }
+                    },
+                    "wargear": ["Lasgun", "Frag Grenades"],
+                    "abilities": ["Orders", "Voice of Command", "Combined Squads"]
                 },
                 {
                     "name": "Heavy Weapons Squad",
@@ -93,7 +207,9 @@ export default async function uploadFactions() {
                         "attacks": 1,
                         "leadership": 6,
                         "save": "5+"
-                    }
+                    },
+                    "wargear": ["Lasgun", "Heavy Weapon", "Frag Grenades"],
+                    "abilities": ["Orders", "Voice of Command"]
                 },
                 {
                     "name": "Special Weapons Squad",
@@ -109,64 +225,10 @@ export default async function uploadFactions() {
                         "attacks": 1,
                         "leadership": 6,
                         "save": "5+"
-                    }
+                    },
+                    "wargear": ["Lasgun", "Special Weapon", "Frag Grenades"],
+                    "abilities": ["Orders", "Voice of Command"]
                 }
-            ]
-        },
-        {
-
-            "name": "Chaos Space Marines",
-            "description": "Chaos Space Marines are Space Marines who turned to Chaos during the Horus Heresy, the civil war that almost tore the Imperium apart ten thousand years ago.",
-            "squads": [
-                {
-                    "name": "Chaos Cultists",
-                    "description": "Chaos Cultists are the most numerous of the Chaos Space Marines' warbands. They are the foot soldiers of Chaos, cannon fodder for the Dark Gods.",
-                    "gameData": {
-                        "points": 50,
-                        "movement": "6\"",
-                        "weaponSkill": 4,
-                        "ballisticSkill": 4,
-                        "strength": 3,
-                        "toughness": 3,
-                        "wounds": 1,
-                        "attacks": 1,
-                        "leadership": 6,
-                        "save": "6+"
-                    }
-                },
-                {
-                    "name": "Chaos Space Marines",
-                    "description": "Chaos Space Marines are the mainstay of any Chaos army. They are the fallen brethren of the loyalist Space Marines.",
-                    "gameData": {
-                        "points": 100,
-                        "movement": "6\"",
-                        "weaponSkill": 3,
-                        "ballisticSkill": 3,
-                        "strength": 4,
-                        "toughness": 4,
-                        "wounds": 1,
-                        "attacks": 1,
-                        "leadership": 8,
-                        "save": "3+"
-                    }
-                },
-                {
-                    "name": "Chaos Terminators",
-                    "description": "Chaos Terminators are the very elite of a Chaos Space Marine warband. Clad in Tactical Dreadnought Armour, they are almost invulnerable to all but the most potent weaponry.",
-                    "gameData": {
-                        "points": 150,
-                        "movement": "5\"",
-                        "weaponSkill": 3,
-                        "ballisticSkill": 3,
-                        "strength": 4,
-                        "toughness": 4,
-                        "wounds": 2,
-                        "attacks": 2,
-                        "leadership": 9,
-                        "save": "2+"
-                    }
-                },
-                // Add more squads here
             ]
         },
         // Add more factions here
