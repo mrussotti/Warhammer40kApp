@@ -31,10 +31,20 @@ const Game = ({ armyId, map: initialMap }) => {
         setMoveInstruction(unit);
         setSelectedUnit(null);  // Close the modal
     };
-    const handleShootInstruction = (unit) => {
-        setShootInstruction(unit);
+    const handleShootInstruction = (unit, weapon) => {
+        const shootingInstruction = {
+          ...unit,
+          selectedWeapon: weapon,  // Include the selected weapon in the instruction
+        };
+        
+        setShootInstruction(shootingInstruction);
         setSelectedUnit(null);  // Close the modal
     };
+    
+    
+    
+    
+    
 
     useEffect(() => {
         if (!isLoading && unitsData) {
@@ -42,7 +52,7 @@ const Game = ({ armyId, map: initialMap }) => {
                 ...unit,
                 id: `${armyId}-${index}`
             }));
-            console.log(unitsWithUniqueId)
+            // console.log(unitsWithUniqueId)
 
 
             setUnitsToDeploy(unitsWithUniqueId);
@@ -88,6 +98,7 @@ const Game = ({ armyId, map: initialMap }) => {
                 break;
             case 'Shooting':
                 if (shootInstruction) {
+                    // console.log('cellData:', cellData);  // Log the cellData
                     handleShooting(shootInstruction, cellData.unit);
                     setShootInstruction(null);  // Clear the shoot instruction
                 } else if (cellData.unit && cellData.player === players[player]) {
@@ -136,9 +147,15 @@ const Game = ({ armyId, map: initialMap }) => {
     };
 
     // Add the handleShooting function.
-    const handleShooting = (shootingUnit, targetUnit) => {
-        console.log(shootingUnit.name + " shoots at " + targetUnit.name)
+    const handleShooting = (shootingInstruction, targetUnit) => {
+        console.log("__________________");
+        // console.log(shootingInstruction);
+        // You can access unit and weapon like this
+        console.log(shootInstruction.name);
+        console.log(shootInstruction.selectedWeapon);
+
     };
+    
 
 
     const handleMoveUnit = (newPosition, unit) => {
@@ -186,7 +203,7 @@ const Game = ({ armyId, map: initialMap }) => {
                 onClose={() => setSelectedUnit(null)}
                 phase={phases[phase]}
                 onMoveUnit={handleMoveInstruction}
-                onShootUnit={handleShootInstruction}  // Note this change
+                onShootUnit={handleShootInstruction}  
             />
         </View>
     );

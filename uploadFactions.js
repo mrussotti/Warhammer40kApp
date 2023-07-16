@@ -171,66 +171,66 @@ export default async function uploadFactions() {
                 }
             ]
         },
-        {
-            "name": "Astra Militarum",
-            "description": "The Astra Militarum, also known as the Imperial Guard, is the largest coherent fighting force in the galaxy.",
-            "squads": [
-                {
-                    "name": "Infantry Squad",
-                    "description": "The Infantry Squad is the backbone of the Astra Militarum, and is invariably the most commonly deployed type of soldier.",
-                    "gameData": {
-                        "points": 40,
-                        "movement": "6\"",
-                        "weaponSkill": 4,
-                        "ballisticSkill": 4,
-                        "strength": 3,
-                        "toughness": 3,
-                        "wounds": 1,
-                        "attacks": 1,
-                        "leadership": 6,
-                        "save": "5+"
-                    },
-                    "wargear": ["Lasgun", "Frag Grenades"],
-                    "abilities": ["Orders", "Voice of Command", "Combined Squads"]
-                },
-                {
-                    "name": "Heavy Weapons Squad",
-                    "description": "Heavy Weapons Squads provide fire support for Astra Militarum infantry units.",
-                    "gameData": {
-                        "points": 60,
-                        "movement": "6\"",
-                        "weaponSkill": 4,
-                        "ballisticSkill": 4,
-                        "strength": 3,
-                        "toughness": 3,
-                        "wounds": 1,
-                        "attacks": 1,
-                        "leadership": 6,
-                        "save": "5+"
-                    },
-                    "wargear": ["Lasgun", "Heavy Weapon", "Frag Grenades"],
-                    "abilities": ["Orders", "Voice of Command"]
-                },
-                {
-                    "name": "Special Weapons Squad",
-                    "description": "Special Weapons Squads are part of the Astra Militarum's specialized infantry and are tasked with carrying the regiment's heavy weaponry.",
-                    "gameData": {
-                        "points": 70,
-                        "movement": "6\"",
-                        "weaponSkill": 4,
-                        "ballisticSkill": 4,
-                        "strength": 3,
-                        "toughness": 3,
-                        "wounds": 1,
-                        "attacks": 1,
-                        "leadership": 6,
-                        "save": "5+"
-                    },
-                    "wargear": ["Lasgun", "Special Weapon", "Frag Grenades"],
-                    "abilities": ["Orders", "Voice of Command"]
-                }
-            ]
-        },
+        // {
+        //     "name": "Astra Militarum",
+        //     "description": "The Astra Militarum, also known as the Imperial Guard, is the largest coherent fighting force in the galaxy.",
+        //     "squads": [
+        //         {
+        //             "name": "Infantry Squad",
+        //             "description": "The Infantry Squad is the backbone of the Astra Militarum, and is invariably the most commonly deployed type of soldier.",
+        //             "gameData": {
+        //                 "points": 40,
+        //                 "movement": "6\"",
+        //                 "weaponSkill": 4,
+        //                 "ballisticSkill": 4,
+        //                 "strength": 3,
+        //                 "toughness": 3,
+        //                 "wounds": 1,
+        //                 "attacks": 1,
+        //                 "leadership": 6,
+        //                 "save": "5+"
+        //             },
+        //             "wargear": ["Lasgun", "Frag Grenades"],
+        //             "abilities": ["Orders", "Voice of Command", "Combined Squads"]
+        //         },
+        //         {
+        //             "name": "Heavy Weapons Squad",
+        //             "description": "Heavy Weapons Squads provide fire support for Astra Militarum infantry units.",
+        //             "gameData": {
+        //                 "points": 60,
+        //                 "movement": "6\"",
+        //                 "weaponSkill": 4,
+        //                 "ballisticSkill": 4,
+        //                 "strength": 3,
+        //                 "toughness": 3,
+        //                 "wounds": 1,
+        //                 "attacks": 1,
+        //                 "leadership": 6,
+        //                 "save": "5+"
+        //             },
+        //             "wargear": ["Lasgun", "Heavy Weapon", "Frag Grenades"],
+        //             "abilities": ["Orders", "Voice of Command"]
+        //         },
+        //         {
+        //             "name": "Special Weapons Squad",
+        //             "description": "Special Weapons Squads are part of the Astra Militarum's specialized infantry and are tasked with carrying the regiment's heavy weaponry.",
+        //             "gameData": {
+        //                 "points": 70,
+        //                 "movement": "6\"",
+        //                 "weaponSkill": 4,
+        //                 "ballisticSkill": 4,
+        //                 "strength": 3,
+        //                 "toughness": 3,
+        //                 "wounds": 1,
+        //                 "attacks": 1,
+        //                 "leadership": 6,
+        //                 "save": "5+"
+        //             },
+        //             "wargear": ["Lasgun", "Special Weapon", "Frag Grenades"],
+        //             "abilities": ["Orders", "Voice of Command"]
+        //         }
+        //     ]
+        // },
         // Add more factions here
     ];
 
