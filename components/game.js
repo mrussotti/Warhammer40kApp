@@ -33,18 +33,18 @@ const Game = ({ armyId, map: initialMap }) => {
     };
     const handleShootInstruction = (unit, weapon) => {
         const shootingInstruction = {
-          ...unit,
-          selectedWeapon: weapon,  // Include the selected weapon in the instruction
+            ...unit,
+            selectedWeapon: weapon,  // Include the selected weapon in the instruction
         };
-        
+
         setShootInstruction(shootingInstruction);
         setSelectedUnit(null);  // Close the modal
     };
-    
-    
-    
-    
-    
+
+
+
+
+
 
     useEffect(() => {
         if (!isLoading && unitsData) {
@@ -83,7 +83,7 @@ const Game = ({ armyId, map: initialMap }) => {
 
     const handleCellPress = (rowIndex, cellIndex) => {
         const cellData = map[rowIndex][cellIndex];
-    
+
         switch (phases[phase]) {
             case 'Deployment':
                 handleDeploymentCellPress(rowIndex, cellIndex);
@@ -99,7 +99,7 @@ const Game = ({ armyId, map: initialMap }) => {
             case 'Shooting':
                 if (shootInstruction) {
                     // console.log('cellData:', cellData);  // Log the cellData
-                    handleShooting(shootInstruction, cellData.unit);
+                    handleShooting(shootInstruction, { ...cellData.unit, position: [rowIndex, cellIndex] });
                     setShootInstruction(null);  // Clear the shoot instruction
                 } else if (cellData.unit && cellData.player === players[player]) {
                     setSelectedUnit({ ...cellData.unit, position: [rowIndex, cellIndex] });  // Use data from the unit
@@ -112,8 +112,8 @@ const Game = ({ armyId, map: initialMap }) => {
                 break;
         }
     };
-    
-    
+
+
 
 
     const handleDeploymentCellPress = (rowIndex, cellIndex) => {
@@ -148,14 +148,58 @@ const Game = ({ armyId, map: initialMap }) => {
 
     // Add the handleShooting function.
     const handleShooting = (shootingInstruction, targetUnit) => {
-        console.log("__________________");
-        // console.log(shootingInstruction);
-        // You can access unit and weapon like this
-        console.log(shootInstruction.name);
-        console.log(shootInstruction.selectedWeapon);
+        if (!targetUnit || !shootingInstruction || !shootingInstruction.selectedWeapon || !shootingInstruction.selectedWeapon.range) {
+            console.log('No target unit selected or shooting instruction is incomplete');
+            return;
+        }
+    
+    
+        // Ensure weapon range is an integer value
+        const weaponRange = parseInt(shootingInstruction.selectedWeapon.range.replace('"', ''));
+        const weaponDamage = parseInt(shootingInstruction.selectedWeapon.damage);
+        const [shooterRow, shooterCell] = shootingInstruction.position;
+    
+        const [targetRow, targetCell] = targetUnit.position;
+    
+        // Calculate the Euclidean distance
+        const distance = Math.sqrt(Math.pow(targetRow - shooterRow, 2) + Math.pow(targetCell - shooterCell, 2));
+    
+        // Check if the target is within range
+        if (distance > weaponRange) {
+            console.log('Target is out of range');
+            return;
+        }
+    
+        // Here you would implement a dice roll or another mechanism to decide whether the shot hits.
+        // But for now, let's say the shot always hits.
+    
+        // Apply damage to the target unit
+        // For simplicity's sake, let's just subtract the weapon damage from the target unit's wounds
+        // Apply damage to the target unit
+    
+        // Here, you should create a new map state and update it
+        let newMap = JSON.parse(JSON.stringify(map)); // Deep copy to prevent mutation of original state
+        console.log(newMap[targetRow][targetCell].unit.gameData.wounds);
 
+        newMap[targetRow][targetCell].unit.gameData.wounds -= weaponDamage;
+    
+        // Check if the target unit is destroyed
+        if (newMap[targetRow][targetCell].unit.gameData.wounds <= 0) {
+            console.log('Target unit destroyed!');
+            // Here you would remove the unit from the game or otherwise mark it as destroyed
+            // For example:
+            newMap[targetRow][targetCell] = { player: null, unit: null };
+        } else {
+            console.log('Target unit damaged! Remaining wounds: ', newMap[targetRow][targetCell].unit.gameData.wounds);
+            // Here you would update the unit's wounds in your game state
+        }
+    
+        setMap(newMap);
     };
     
+    
+
+
 
 
     const handleMoveUnit = (newPosition, unit) => {
@@ -203,7 +247,7 @@ const Game = ({ armyId, map: initialMap }) => {
                 onClose={() => setSelectedUnit(null)}
                 phase={phases[phase]}
                 onMoveUnit={handleMoveInstruction}
-                onShootUnit={handleShootInstruction}  
+                onShootUnit={handleShootInstruction}
             />
         </View>
     );
