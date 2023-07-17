@@ -1,11 +1,12 @@
 // components/game.js
 import React, { useState, useEffect } from 'react';
-import { View, Text, Button, Dimensions } from 'react-native';
+import { View, Text, Button, Dimensions, document } from 'react-native';
 import PlayArea from '../maps/PlayArea';
 import { Picker } from '@react-native-picker/picker';
 import useFetchUnitsData from './FetchUnitsData';
 import UnitInfoModal from './UnitInfoModal';
 import Unit from '../maps/Unit'; // import here
+
 
 const Game = ({ armyId, playAreaWidth, playAreaHeight }) => {
     const { isLoading, unitsData, error } = useFetchUnitsData(armyId);
@@ -81,16 +82,35 @@ const Game = ({ armyId, playAreaWidth, playAreaHeight }) => {
         }
     };
 
+
+
     const handleScreenPress = (screenX, screenY) => {
         console.log("pressed")
 
         const [x, y] = convertScreenToWorld(screenX, screenY, screenWidth, screenHeight, playAreaWidth, playAreaHeight);
 
-        // find the condition that determines if the pressed position is on a unit
-        const unitData = units.find(unit =>
-            Math.abs(unit.x - x) < unit.gameData.size / 2 &&
-            Math.abs(unit.y - y) < unit.gameData.size / 2
-        );
+        const unitData = units.find(unit => {
+            const unitCenterX = unit.x + unit.gameData.size / 2;
+            const unitCenterY = unit.y + unit.gameData.size / 2;
+        
+            // calculate square of distance from the center of the unit to the click
+            const distanceSquared = Math.pow(unitCenterX - x, 2) + Math.pow(unitCenterY - y, 2);
+        
+            // define the increased radius squared directly
+            const increasedUnitRadiusSquared = Math.pow(unit.gameData.size, 2);
+        
+            // Check the square of the distance against the square of the increased radius
+            return distanceSquared < increasedUnitRadiusSquared;
+        });
+        
+        
+        
+
+        if (unitData) {
+            console.log('Unit Selected:', unitData);
+            console.log(unitData.player);
+
+        }
 
         switch (phases[phase]) {
             case 'Deployment':
@@ -137,8 +157,9 @@ const Game = ({ armyId, playAreaWidth, playAreaHeight }) => {
                 const deployedUnit = {
                     ...unitToDeploy,
                     position: { x, y },
-                    x: x, // add x-coordinate
-                    y: y, // add y-coordinate
+                    x: x - unitToDeploy.gameData.size / 2, // subtract half of the unit's size
+                    y: y - unitToDeploy.gameData.size / 2, // subtract half of the unit's size
+                    player: players[player],
                 };
                 newUnits.push(deployedUnit);
                 setUnits(newUnits);
@@ -152,28 +173,11 @@ const Game = ({ armyId, playAreaWidth, playAreaHeight }) => {
         }
     };
     
+    
 
 
 
-    useEffect(() => {
-        switch (phases[phase]) {
-            case 'Deployment':
-                deploymentPhase(unitsData);
-                break;
-            case 'Movement':
-                movementPhase();
-                break;
-        }
-    }, [turn, player, phase, unitsData]);
 
-
-    const deploymentPhase = (unitsData) => {
-        // logic for deployment phase
-    };
-
-    const movementPhase = (unitsData) => {
-        // logic for movement phase
-    };
 
     const handleShooting = (shootingInstruction, targetUnit) => {
         if (!targetUnit || !shootingInstruction || !shootingInstruction.selectedWeapon || !shootingInstruction.selectedWeapon.range) {
@@ -242,12 +246,12 @@ const Game = ({ armyId, playAreaWidth, playAreaHeight }) => {
 
 
     const convertScreenToWorld = (screenX, screenY, screenWidth, screenHeight, playAreaWidth, playAreaHeight) => {
-        console.log("screenX: "+ screenX)
-        console.log("screenY: "+ screenY)
-        console.log("screenWidth: "+ screenWidth)
-        console.log("screenHeight: "+ screenHeight)
-        console.log("playAreaWidth: "+ playAreaWidth)
-        console.log("playAreaHeight: "+ playAreaHeight)
+        // console.log("screenX: "+ screenX)
+        // console.log("screenY: "+ screenY)
+        // console.log("screenWidth: "+ screenWidth)
+        // console.log("screenHeight: "+ screenHeight)
+        // console.log("playAreaWidth: "+ playAreaWidth)
+        // console.log("playAreaHeight: "+ playAreaHeight)
 
 
         const worldX = (screenX / screenWidth) * playAreaWidth;
@@ -277,6 +281,8 @@ const Game = ({ armyId, playAreaWidth, playAreaHeight }) => {
                         y={unitData.y}
                         unitData={unitData}
                         key={index}
+                        onPress={(x,y) => handleScreenPress(x,y)}
+
                     />
                 ))}
             </PlayArea>
