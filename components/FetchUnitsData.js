@@ -15,6 +15,7 @@ const useFetchUnitsData = (armyId) => {
                 if(armyData){
                     const squads = armyData.units;
                     setUnitsData(squads);
+                    //console.log(unitsData)
                     setIsLoading(false);
                 }else{
                     setIsLoading(false);
@@ -35,55 +36,124 @@ const useFetchUnitsData = (armyId) => {
 
 export default useFetchUnitsData;
 
+//EXAMPLE OUTPUT:
 
-// sample output:
+
 // Array [
 //     Object {
-//       "description": "Heavy Weapons Squads provide fire support for Astra Militarum infantry units.",
-//       "gameData": Object {
-//         "attacks": 1,
-//         "ballisticSkill": 4,
-//         "leadership": 6,
-//         "movement": "6\"",
-//         "points": 60,
-//         "save": "5+",
-//         "strength": 3,
-//         "toughness": 3,
-//         "weaponSkill": 4,
-//         "wounds": 1,
-//       },
-//       "name": "Heavy Weapons Squad",
-//     },
-//     Object {
-//       "description": "Special Weapons Squads are part of the Astra Militarum's specialized infantry and are tasked with carrying the regiment's heavy weaponry.",     
-//       "gameData": Object {
-//         "attacks": 1,
-//         "ballisticSkill": 4,
-//         "leadership": 6,
-//         "movement": "6\"",
-//         "points": 70,
-//         "save": "5+",
-//         "strength": 3,
-//         "toughness": 3,
-//         "weaponSkill": 4,
-//         "wounds": 1,
-//       },
-//       "name": "Special Weapons Squad",
-//     },
-//     Object {
-//       "description": "The Infantry Squad is the backbone of the Astra Militarum, and is invariably the most commonly deployed type of soldier.",
-//       "gameData": Object {
-//         "attacks": 1,
-//         "ballisticSkill": 4,
-//         "leadership": 6,
-//         "movement": "6\"",
-//         "points": 40,
-//         "save": "5+",
-//         "strength": 3,
-//         "toughness": 3,
-//         "weaponSkill": 4,
-//         "wounds": 1,
-//       },
-//       "name": "Infantry Squad",
+//       "faction": "Space Marines",
+//       "id": "qn6fKvtD823KptBaPMWN",
+//       "units": Array [
+//         Object {
+//           "abilities": Array [
+//             "And They Shall Know No Fear",
+//             "Combat Squads",
+//             "Combat Tactics",
+//           ],
+//           "description": "Tactical Squads are the backbone of any Space Marine army. They hold ground; provide fire support; and even attack enemy lines.",
+//           "gameData": Object {
+//             "attacks": 1,
+//             "ballisticSkill": 3,
+//             "leadership": 7,
+//             "movement": "6\"",
+//             "points": 100,
+//             "save": "3+",
+//             "strength": 4,
+//             "toughness": 4,
+//             "weaponSkill": 3,
+//             "wounds": 1,
+//           },
+//           "name": "Tactical Squad",
+//           "wargear": Array [
+//             Object {
+//               "armorPenetration": 0,
+//               "damage": 1,
+//               "name": "Boltgun",
+//               "range": "24\"",
+//               "strength": 4,
+//               "type": "Rapid Fire 1",
+//             },
+//             Object {
+//               "armorPenetration": 0,
+//               "damage": 1,
+//               "name": "Bolt Pistol",
+//               "range": "12\"",
+//               "strength": 4,
+//               "type": "Pistol 1",
+//             },
+//             Object {
+//               "armorPenetration": 0,
+//               "damage": 1,
+//               "name": "Frag Grenades",
+//               "range": "6\"",
+//               "strength": 3,
+//               "type": "Grenade D6",
+//             },
+//             Object {
+//               "armorPenetration": -1,
+//               "damage": "D3",
+//               "name": "Krak Grenades",
+//               "range": "6\"",
+//               "strength": 6,
+//               "type": "Grenade 1",
+//             },
+//           ],
+//         },
+//         Object {
+//           "abilities": Array [
+//             "And They Shall Know No Fear",
+//             "Combat Squads",
+//             "Combat Tactics",
+//           ],
+//           "description": "Tactical Squads are the backbone of any Space Marine army. They hold ground; provide fire support; and even attack enemy lines.",
+//           "gameData": Object {
+//             "attacks": 1,
+//             "ballisticSkill": 3,
+//             "leadership": 7,
+//             "movement": "6\"",
+//             "points": 100,
+//             "save": "3+",
+//             "strength": 4,
+//             "toughness": 4,
+//             "weaponSkill": 3,
+//             "wounds": 1,
+//           },
+//           "name": "Tactical Squad",
+//           "wargear": Array [
+//             Object {
+//               "armorPenetration": 0,
+//               "damage": 1,
+//               "name": "Boltgun",
+//               "range": "24\"",
+//               "strength": 4,
+//               "type": "Rapid Fire 1",
+//             },
+//             Object {
+//               "armorPenetration": 0,
+//               "damage": 1,
+//               "name": "Bolt Pistol",
+//               "range": "12\"",
+//               "strength": 4,
+//               "type": "Pistol 1",
+//             },
+//             Object {
+//               "armorPenetration": 0,
+//               "damage": 1,
+//               "name": "Frag Grenades",
+//               "range": "6\"",
+//               "strength": 3,
+//               "type": "Grenade D6",
+//             },
+//             Object {
+//               "armorPenetration": -1,
+//               "damage": "D3",
+//               "name": "Krak Grenades",
+//               "range": "6\"",
+//               "strength": 6,
+//               "type": "Grenade 1",
+//             },
+//           ],
+//         },
+//       ],
 //     },
 //   ]
