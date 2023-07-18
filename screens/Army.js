@@ -32,10 +32,23 @@ const Army = ({ navigation }) => {
       <Text style={styles.factionTitle}>Faction: {item.faction}</Text>
       <Text style={styles.unitsTitle}>Units:</Text>
       {item.units.map((unit, index) => (
-        <Text key={index} style={styles.unitText}>{unit.name} x {unit.count}</Text>
+        <View key={index}>
+          <Text style={styles.unitText}>{unit.name} x {unit.count}</Text>
+          <Text style={styles.modelsTitle}>Models:</Text>
+          {unit.models.map((model, modelIndex) => (
+            <View key={modelIndex}>
+              <Text style={styles.modelText}>Model: {model.name} x {model.count}</Text>
+              <Text style={styles.wargearTitle}>Wargear:</Text>
+              {model.wargear.map((gear, gearIndex) => (
+                <Text key={gearIndex} style={styles.gearText}>{gear.name}</Text>
+              ))}
+            </View>
+          ))}
+        </View>
       ))}
     </View>
   );
+  
   
   return (
     <View style={styles.container}>
@@ -81,5 +94,23 @@ const styles = StyleSheet.create({
   buttonText: {
     fontSize: 18,
     color: '#000',
-  }
+  },
+  modelsTitle: {
+    fontSize: 14,
+    fontWeight: 'bold',
+    marginTop: 10,
+  },
+  modelText: {
+    fontSize: 14,
+    marginLeft: 10,
+  },
+  wargearTitle: {
+    fontSize: 14,
+    fontWeight: 'bold',
+    marginTop: 10,
+  },
+  gearText: {
+    fontSize: 14,
+    marginLeft: 20,
+  },
 });
