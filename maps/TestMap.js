@@ -11,4 +11,4 @@ export const map1 = [
     ['cell16', 'cell17', 'cell18'],
   ];
   
-  export const warhammerMap = Array(20).fill().map(() => Array(10).fill('cell'));
+  export const warhammerMap = Array(48).fill().map(() => Array(48).fill('cell'));

@@ -1,20 +1,21 @@
 // components/game.js
 import React, { useState, useEffect } from 'react';
-import { View, Text, Button } from 'react-native';
-import GameMap from './gameMap';
+import { View, Text, Button, Dimensions, document } from 'react-native';
+import PlayArea from '../maps/PlayArea';
 import { Picker } from '@react-native-picker/picker';
 import useFetchUnitsData from './FetchUnitsData';
-import UnitInfoModal from './UnitInfoModal';  // import here
+import UnitInfoModal from './UnitInfoModal';
+import Unit from '../maps/Unit'; // import here
 
 
-
-const Game = ({ armyId, map: initialMap }) => {
+const Game = ({ armyId, playAreaWidth, playAreaHeight }) => {
     const { isLoading, unitsData, error } = useFetchUnitsData(armyId);
-
+    const screenWidth = Dimensions.get('window').width;
+    const screenHeight = Dimensions.get('window').height;
     const [turn, setTurn] = useState(0);
     const [player, setPlayer] = useState(0);
     const [phase, setPhase] = useState(0);
-    const [map, setMap] = useState(initialMap || []);
+    const [units, setUnits] = useState([]);  // units now represent units with their positions
     const [unitsToDeploy, setUnitsToDeploy] = useState([]);
     const [selectedUnit, setSelectedUnit] = useState(null);
     const [movedUnits, setMovedUnits] = useState([]);
@@ -81,88 +82,116 @@ const Game = ({ armyId, map: initialMap }) => {
         }
     };
 
-    const handleCellPress = (rowIndex, cellIndex) => {
-        const cellData = map[rowIndex][cellIndex];
+
+
+    const handleScreenPress = (screenX, screenY) => {
+        console.log("pressed")
+
+        const [x, y] = convertScreenToWorld(screenX, screenY, screenWidth, screenHeight, playAreaWidth, playAreaHeight);
+
+        const unitData = units.find(unit => {
+            const unitCenterX = unit.x + unit.gameData.size / 2;
+            const unitCenterY = unit.y + unit.gameData.size / 2;
+        
+            // calculate square of distance from the center of the unit to the click
+            const distanceSquared = Math.pow(unitCenterX - x, 2) + Math.pow(unitCenterY - y, 2);
+        
+            // define the increased radius squared directly
+            const increasedUnitRadiusSquared = Math.pow(unit.gameData.size, 2);
+        
+            // Check the square of the distance against the square of the increased radius
+            return distanceSquared < increasedUnitRadiusSquared;
+        });
+        
+        
+        
+
+        if (unitData) {
+            console.log('Unit Selected:', unitData);
+            console.log(unitData.player);
+
+        }
 
         switch (phases[phase]) {
             case 'Deployment':
-                handleDeploymentCellPress(rowIndex, cellIndex);
+                console.log("KLJ X: "+ x)
+                console.log("KLJ Y: "+ y)
+
+                handleDeploymentCellPress(x, y);
                 break;
             case 'Movement':
                 if (moveInstruction) {
-                    handleMoveUnit([rowIndex, cellIndex], moveInstruction);
-                    setMoveInstruction(null);  // Clear the move instruction
-                } else if (cellData.unit && cellData.player === players[player]) {
-                    setSelectedUnit({ ...cellData.unit, position: [rowIndex, cellIndex] });  // Use data from the unit
+                    // Make sure that the selected unit belongs to the current player
+                    if (moveInstruction.player === players[player]) {
+                        handleMoveUnit({ x, y }, moveInstruction);
+                        setMoveInstruction(null);  // Clear the move instruction
+                    } else {
+                        console.log('Cannot move opponent unit');
+                    }
+                } else if (unitData && unitData.player === players[player]) {
+                    setSelectedUnit({ ...unitData, position: { x, y } });  // Use data from the unit
                 }
                 break;
             case 'Shooting':
                 if (shootInstruction) {
-                    // console.log('cellData:', cellData);  // Log the cellData
-                    handleShooting(shootInstruction, { ...cellData.unit, position: [rowIndex, cellIndex] });
+                    handleShooting(shootInstruction, { ...unitData, position: { x, y } });
                     setShootInstruction(null);  // Clear the shoot instruction
-                } else if (cellData.unit && cellData.player === players[player]) {
-                    setSelectedUnit({ ...cellData.unit, position: [rowIndex, cellIndex] });  // Use data from the unit
+                } else if (unitData && unitData.player === players[player]) {
+                    setSelectedUnit({ ...unitData, position: { x, y } });  // Use data from the unit
                 }
                 break;
             default:
-                if (cellData.unit && cellData.player === players[player]) {
-                    setSelectedUnit({ ...cellData.unit, position: [rowIndex, cellIndex] });  // Use data from the unit
+                if (unitData && unitData.player === players[player]) {
+                    setSelectedUnit({ ...unitData, position: { x, y } });  // Use data from the unit
                 }
                 break;
         }
     };
 
-
-
-
-    const handleDeploymentCellPress = (rowIndex, cellIndex) => {
+    const handleDeploymentCellPress = (x, y) => {
         if (unitsToDeploy.length > 0) {
-            const newMap = [...map];
-            newMap[rowIndex][cellIndex] = { player: players[player], unit: unitsToDeploy[0] };
-            setMap(newMap);
-            setUnitsToDeploy(unitsToDeploy.slice(1));
+            const newUnits = [...units];
+            const unitToDeploy = unitsToDeploy[0];
+    
+            // Check if deployment position is within game area
+            if (x - unitToDeploy.gameData.size / 2 >= 0 &&
+                y - unitToDeploy.gameData.size / 2 >= 0 &&
+                x + unitToDeploy.gameData.size / 2 <= playAreaWidth &&
+                y + unitToDeploy.gameData.size / 2 <= playAreaHeight) {
+                const deployedUnit = {
+                    ...unitToDeploy,
+                    position: { x, y },
+                    x: x - unitToDeploy.gameData.size / 2,
+                    y: y - unitToDeploy.gameData.size / 2,
+                    player: players[player],
+                };
+                newUnits.push(deployedUnit);
+                setUnits(newUnits);
+                setUnitsToDeploy(unitsToDeploy.slice(1));
+            } else {
+                console.log('Unit deployment position is outside the game area');
+            }
+        } else {
+            console.log('No more units to deploy');
         }
     };
-
-
-
-    useEffect(() => {
-        switch (phases[phase]) {
-            case 'Deployment':
-                deploymentPhase(unitsData);
-                break;
-            case 'Movement':
-                movementPhase();
-                break;
-        }
-    }, [turn, player, phase, unitsData, map]);
-
-    const deploymentPhase = (unitsData) => {
-        // logic for deployment phase
-    };
-
-    const movementPhase = (unitsData) => {
-        // logic for movement phase
-    };
-
-    // Add the handleShooting function.
+    
+    
     const handleShooting = (shootingInstruction, targetUnit) => {
         if (!targetUnit || !shootingInstruction || !shootingInstruction.selectedWeapon || !shootingInstruction.selectedWeapon.range) {
             console.log('No target unit selected or shooting instruction is incomplete');
             return;
         }
     
-    
         // Ensure weapon range is an integer value
-        const weaponRange = parseInt(shootingInstruction.selectedWeapon.range.replace('"', ''));
+        const weaponRange = parseInt(shootingInstruction.selectedWeapon.range.replace('"', ''))*100;
         const weaponDamage = parseInt(shootingInstruction.selectedWeapon.damage);
-        const [shooterRow, shooterCell] = shootingInstruction.position;
+        const shooterPosition = shootingInstruction.position;
     
-        const [targetRow, targetCell] = targetUnit.position;
+        const targetPosition = targetUnit.position;
     
         // Calculate the Euclidean distance
-        const distance = Math.sqrt(Math.pow(targetRow - shooterRow, 2) + Math.pow(targetCell - shooterCell, 2));
+        const distance = Math.sqrt(Math.pow(targetPosition.y - shooterPosition.y, 2) + Math.pow(targetPosition.x - shooterPosition.x, 2));
     
         // Check if the target is within range
         if (distance > weaponRange) {
@@ -170,58 +199,103 @@ const Game = ({ armyId, map: initialMap }) => {
             return;
         }
     
-        // Here you would implement a dice roll or another mechanism to decide whether the shot hits.
-        // But for now, let's say the shot always hits.
-    
-        // Apply damage to the target unit
-        // For simplicity's sake, let's just subtract the weapon damage from the target unit's wounds
-        // Apply damage to the target unit
-    
-        // Here, you should create a new map state and update it
-        let newMap = JSON.parse(JSON.stringify(map)); // Deep copy to prevent mutation of original state
-        console.log(newMap[targetRow][targetCell].unit.gameData.wounds);
-
-        newMap[targetRow][targetCell].unit.gameData.wounds -= weaponDamage;
+        // Calculate remaining wounds
+        const remainingWounds = targetUnit.gameData.wounds - weaponDamage;
     
         // Check if the target unit is destroyed
-        if (newMap[targetRow][targetCell].unit.gameData.wounds <= 0) {
+        if (remainingWounds <= 0) {
             console.log('Target unit destroyed!');
             // Here you would remove the unit from the game or otherwise mark it as destroyed
             // For example:
-            newMap[targetRow][targetCell] = { player: null, unit: null };
+            setUnits(units.filter(u => u.id !== targetUnit.id));
         } else {
-            console.log('Target unit damaged! Remaining wounds: ', newMap[targetRow][targetCell].unit.gameData.wounds);
+            console.log('Target unit damaged! Remaining wounds: ', remainingWounds);
             // Here you would update the unit's wounds in your game state
+            // For example:
+            setUnits(units.map(u => {
+                if (u.id === targetUnit.id) {
+                    return {
+                        ...u,
+                        gameData: {
+                            ...u.gameData,
+                            wounds: remainingWounds
+                        }
+                    };
+                } else {
+                    return u;
+                }
+            }));
         }
-    
-        setMap(newMap);
     };
     
-    
 
+// This function calculates the Euclidean distance between two points
+const calculateDistance = (point1, point2) => {
+    return Math.sqrt(Math.pow(point2.x - point1.x, 2) + Math.pow(point2.y - point1.y, 2));
+}
 
+const handleMoveUnit = (newPosition, unit) => {
+    const maxMovementDistance = parseInt(unit.gameData.movement) * 100;
 
+    // Calculate the Euclidean distance between the unit's current position and the new position
+    const distance = calculateDistance(unit.position, newPosition);
 
-    const handleMoveUnit = (newPosition, unit) => {
-        const [newRowIndex, newCellIndex] = newPosition;
+    // Check if the unit has already moved this turn
+    if (movedUnits.includes(unit.id)) {
+        console.log('Unit has already moved this turn');
+        return;
+    }
 
-        const maxMovementDistance = parseInt(unit.gameData.movement);
-        const [selectedUnitRow, selectedUnitCell] = unit.position;
-        const distance = Math.abs(newRowIndex - selectedUnitRow) + Math.abs(newCellIndex - selectedUnitCell);
-
-        // Check if this unit has already moved this turn
-        if (movedUnits.includes(unit.id)) {
-            return;
-        }
-
-        if (distance <= maxMovementDistance && !map[newRowIndex][newCellIndex].unit) {
-            const newMap = [...map];
-            newMap[newRowIndex][newCellIndex] = { player: players[player], unit: unit };
-            newMap[selectedUnitRow][selectedUnitCell] = { player: null, unit: null };
-            setMap(newMap);
+    // Check if the move is within the unit's movement range
+    if (distance <= maxMovementDistance) {
+        // Check if the new position overlaps with an existing unit
+        // And if the new position is within the game area
+        if (!units.find(u => calculateDistance(u.position, newPosition) < unit.gameData.size) &&
+            newPosition.x - unit.gameData.size / 2 >= 0 &&
+            newPosition.y - unit.gameData.size / 2 >= 0 &&
+            newPosition.x + unit.gameData.size / 2 <= playAreaWidth &&
+            newPosition.y + unit.gameData.size / 2 <= playAreaHeight) {
+            // Update the position of the unit in the units state
+            setUnits(units.map(u => {
+                if (u.id === unit.id) {
+                    return {
+                        ...u,
+                        position: newPosition,
+                        x: newPosition.x - u.gameData.size / 2,
+                        y: newPosition.y - u.gameData.size / 2,
+                    };
+                } else {
+                    return u;
+                }
+            }));
+            // Add the unit to the list of moved units
             setMovedUnits([...movedUnits, unit.id]);
+        } else {
+            console.log('Move is blocked or outside the game area');
         }
+    } else {
+        console.log('Move exceeds unit movement range');
+    }
+};
+
+    const convertScreenToWorld = (screenX, screenY, screenWidth, screenHeight, playAreaWidth, playAreaHeight) => {
+        // console.log("screenX: "+ screenX)
+        // console.log("screenY: "+ screenY)
+        // console.log("screenWidth: "+ screenWidth)
+        // console.log("screenHeight: "+ screenHeight)
+        // console.log("playAreaWidth: "+ playAreaWidth)
+        // console.log("playAreaHeight: "+ playAreaHeight)
+
+
+        const worldX = (screenX / screenWidth) * playAreaWidth;
+        const worldY = (screenY / screenHeight) * playAreaHeight;
+        console.log("x: "+ worldX)
+        console.log("y: "+ worldY)
+
+        return [worldX, worldY];
     };
+
+
 
 
     return (
@@ -229,7 +303,24 @@ const Game = ({ armyId, map: initialMap }) => {
             <Text>Turn: {turn + 1}, {players[player]}'s {phases[phase]} Phase</Text>
             <Button title="Next Phase" onPress={nextPhase} />
 
-            <GameMap map={map || []} onCellPress={handleCellPress} />
+            <PlayArea
+                width={playAreaWidth}
+                height={playAreaHeight}
+                onPress={(evt) => handleScreenPress(evt.nativeEvent.locationX, evt.nativeEvent.locationY)}
+            >
+                {units.map((unitData, index) => (
+                    <Unit
+                        x={unitData.x}
+                        y={unitData.y}
+                        unitData={unitData}
+                        key={index}
+                        onPress={(x,y) => handleScreenPress(x,y)}
+
+                    />
+                ))}
+            </PlayArea>
+
+
             {phase === 0 && (
                 <View>
                     <Text>Select a unit to deploy:</Text>

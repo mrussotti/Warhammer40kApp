@@ -21,7 +21,12 @@ export default async function uploadFactions() {
                         "wounds": 1,
                         "attacks": 1,
                         "leadership": 7,
-                        "save": "3+"
+                        "save": "3+",
+                        "size": 25, // Added size (in pixels)
+                        "numModels": 10,  // Added number of models in a squad
+                        "minSpaceMarine": 4,
+                        "maxSpaceMarine": 9,
+                        "minSpaceS": 4,
                     },
                     "wargear": [
                         {
@@ -72,7 +77,9 @@ export default async function uploadFactions() {
                         "wounds": 1,
                         "attacks": 1,
                         "leadership": 7,
-                        "save": "3+"
+                        "save": "3+",
+                        "size": 25, // Added size (in pixels)
+                        "numModels": 10  // Added number of models in a squad
                     },
                     "wargear": [
                         {
@@ -127,7 +134,9 @@ export default async function uploadFactions() {
                         "wounds": 1,
                         "attacks": 1,
                         "leadership": 8,
-                        "save": "3+"
+                        "save": "3+",
+                        "size": 25, // Added size (in pixels)
+                        "numModels": 10  // Added number of models in a squad
                     },
                     "wargear": [
                         {

@@ -1,5 +1,6 @@
+// screens/Army.js
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, Button, FlatList } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, FlatList } from 'react-native';
 import { db, auth } from '../firebase';
 import { useIsFocused } from '@react-navigation/native';
 
@@ -10,12 +11,12 @@ const Army = ({ navigation }) => {
   useEffect(() => {
     if (isFocused) {
       const fetchArmies = async () => {
-        const armiesSnapshot = await db.collection('Armies').where('userId', '==', auth.currentUser.uid).get(); // only get armies for the current user
+        const armiesSnapshot = await db.collection('Armies').where('userId', '==', auth.currentUser.uid).get(); 
         const armiesData = await Promise.all(armiesSnapshot.docs.map(async doc => {
           const armyData = doc.data();
           const factionSnapshot = await db.collection('factions').doc(armyData.faction).get();
           const factionData = factionSnapshot.data();
-          return { id: doc.id, faction: factionData.name, units: armyData.units };
+          return { id: doc.id, name: armyData.name, faction: factionData.name, units: armyData.units };
         }));
         console.log(armiesData);
         setArmies(armiesData);
@@ -27,23 +28,26 @@ const Army = ({ navigation }) => {
 
   const renderItem = ({ item }) => (
     <View style={styles.item}>
-      <Text style={styles.title}>Faction: {item.faction}</Text>
-      <Text style={styles.title}>Units:</Text>
+      <Text style={styles.armyName}>Army: {item.name}</Text>
+      <Text style={styles.factionTitle}>Faction: {item.faction}</Text>
+      <Text style={styles.unitsTitle}>Units:</Text>
       {item.units.map((unit, index) => (
-        <Text key={index}>{unit.name}</Text>
+        <Text key={index} style={styles.unitText}>{unit.name} x {unit.count}</Text>
       ))}
     </View>
   );
-
+  
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Armies</Text>
+      <TouchableOpacity style={styles.createButton} onPress={() => navigation.navigate('CreateArmy')}>
+        <Text style={styles.buttonText}>Make New Army</Text>
+      </TouchableOpacity>
       <FlatList
         data={armies}
         renderItem={renderItem}
         keyExtractor={item => item.id}
       />
-      <Button title="Make New Army" onPress={() => navigation.navigate('CreateArmy')} />
     </View>
   );
 };
@@ -53,8 +57,9 @@ export default Army;
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: 'center',
+    justifyContent: 'flex-start', // Align the content to the top
     alignItems: 'center',
+    padding: 10, // Add padding
   },
   title: {
     fontSize: 24,
@@ -66,4 +71,15 @@ const styles = StyleSheet.create({
     marginVertical: 8,
     marginHorizontal: 16,
   },
+  createButton: {
+    alignItems: 'center',
+    backgroundColor: '#DDDDDD',
+    padding: 10,
+    borderRadius: 5,
+    marginBottom: 20,
+  },
+  buttonText: {
+    fontSize: 18,
+    color: '#000',
+  }
 });

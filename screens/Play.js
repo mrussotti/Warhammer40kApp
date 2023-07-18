@@ -12,19 +12,20 @@ const Play = ({ navigation }) => {
   useEffect(() => {
     const fetchArmies = async () => {
       try {
-        const armiesSnapshot = await db.collection('Armies').where('userId', '==', auth.currentUser.uid).get(); // only get armies for the current user
+        const armiesSnapshot = await db.collection('Armies').where('userId', '==', auth.currentUser.uid).get(); 
         const armiesData = await Promise.all(armiesSnapshot.docs.map(async doc => {
           const armyData = doc.data();
-          const factionSnapshot = await db.collection('factions').doc(armyData.faction).get();
-          const factionData = factionSnapshot.data();
-          return { label: factionData.name, value: doc.id };  // use the faction name as the label and the army ID as the value
+          console.log(armyData.name)
+          console.log("_+_+_+_-=-===-=-=")
+
+          return { label: armyData.name, value: doc.id };  // use the army name as the label and the army ID as the value
         }));
-        console.log(armiesData);
+        setSelectedArmy(armiesData[0].value);  // set selectedArmy as the first army
         setArmies(armiesData);
-        setLoading(false);  // set loading to false once data is loaded
+        setLoading(false); 
       } catch (error) {
         console.log('Error fetching armies:', error);
-        setLoading(false);  // set loading to false if there's an error
+        setLoading(false);
       }
     };
   
@@ -32,7 +33,7 @@ const Play = ({ navigation }) => {
   }, []);
   
   if (loading) {
-    return <ActivityIndicator />;  // show a loading spinner while data is being loaded
+    return <ActivityIndicator />;
   }
 
   const handlePress = (screenName) => {
@@ -52,7 +53,7 @@ const Play = ({ navigation }) => {
         <Picker
           selectedValue={selectedArmy}
           onValueChange={(itemValue) => setSelectedArmy(itemValue)}
-          style={{height: 50, width: '100%'}} // Use full width
+          style={{height: 50, width: '100%'}}
         >
           {armies.map((army) => (
             <Picker.Item key={army.value} label={army.label} value={army.value} />
@@ -66,9 +67,8 @@ const Play = ({ navigation }) => {
       </View>
     </View>
   );
-  
-  
 };
+
 
 export default Play;
 
