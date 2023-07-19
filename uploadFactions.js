@@ -83,7 +83,7 @@ export default async function uploadFactions() {
                 {
                     "name": "Tactical Squad",
                     "description": "Tactical Squads are the backbone of any Space Marine army. They hold ground; provide fire support; and even attack enemy lines.",
-                    "models": [
+                    "rules": [
                         {
                             "name": "Space Marine",
                             "min": 4,
@@ -126,6 +126,94 @@ export default async function uploadFactions() {
                                 }
                             ]
                         }
+                    ],
+                    "models": [
+                        {
+                            "name": "Space Marine Sergeant",
+                            "gameData": {
+                                "points": 15,
+                                "movement": "6\"",
+                                "weaponSkill": 3,
+                                "ballisticSkill": 3,
+                                "strength": 4,
+                                "toughness": 4,
+                                "wounds": 1,
+                                "attacks": 2,
+                                "leadership": 8,
+                                "save": "3+",
+                                "size": 25,
+                            },
+                            "wargear": ["Bolt Pistol", "Boltgun", "Frag Grenades", "Krak Grenades"]
+                        },
+                        {
+                            "name": "Space Marine",
+                            "gameData": {
+                                "points": 10,
+                                "movement": "6\"",
+                                "weaponSkill": 3,
+                                "ballisticSkill": 3,
+                                "strength": 4,
+                                "toughness": 4,
+                                "wounds": 1,
+                                "attacks": 1,
+                                "leadership": 7,
+                                "save": "3+",
+                                "size": 25, 
+                            },
+                            "wargear": ["Bolt Pistol", "Boltgun", "Frag Grenades", "Krak Grenades"]
+                        },
+                        {
+                            "name": "Space Marine",
+                            "gameData": {
+                                "points": 10,
+                                "movement": "6\"",
+                                "weaponSkill": 3,
+                                "ballisticSkill": 3,
+                                "strength": 4,
+                                "toughness": 4,
+                                "wounds": 1,
+                                "attacks": 1,
+                                "leadership": 7,
+                                "save": "3+",
+                                "size": 25, 
+                            },
+                            "wargear": ["Bolt Pistol", "Boltgun", "Frag Grenades", "Krak Grenades"]
+                        },
+                        {
+                            "name": "Space Marine",
+                            "gameData": {
+                                "points": 10,
+                                "movement": "6\"",
+                                "weaponSkill": 3,
+                                "ballisticSkill": 3,
+                                "strength": 4,
+                                "toughness": 4,
+                                "wounds": 1,
+                                "attacks": 1,
+                                "leadership": 7,
+                                "save": "3+",
+                                "size": 25, 
+                            },
+                            "wargear": ["Bolt Pistol", "Boltgun", "Frag Grenades", "Krak Grenades"]
+                        },
+                        {
+                            "name": "Space Marine",
+                            "gameData": {
+                                "points": 10,
+                                "movement": "6\"",
+                                "weaponSkill": 3,
+                                "ballisticSkill": 3,
+                                "strength": 4,
+                                "toughness": 4,
+                                "wounds": 1,
+                                "attacks": 1,
+                                "leadership": 7,
+                                "save": "3+",
+                                "size": 25, 
+                            },
+                            "wargear": ["Bolt Pistol", "Boltgun", "Frag Grenades", "Krak Grenades"]
+                        },
+
                     ],
                     "abilities": ["Angels of Death", "Combat Squads"]
                 }

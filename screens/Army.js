@@ -11,46 +11,88 @@ const Army = ({ navigation }) => {
   useEffect(() => {
     if (isFocused) {
       const fetchArmies = async () => {
-        const armiesSnapshot = await db.collection('Armies').where('userId', '==', auth.currentUser.uid).get(); 
+        const armiesSnapshot = await db.collection('Armies').where('userId', '==', auth.currentUser.uid).get();
         const armiesData = await Promise.all(armiesSnapshot.docs.map(async doc => {
           const armyData = doc.data();
+          if (!armyData) {
+            console.error('armyData is undefined', doc.id);
+            return;
+          }
+  
           const factionSnapshot = await db.collection('factions').doc(armyData.faction).get();
           const factionData = factionSnapshot.data();
-          return { id: doc.id, name: armyData.name, faction: factionData.name, units: armyData.units };
+          if (!factionData) {
+            console.error('factionData is undefined', doc.id);
+            return;
+          }
+  
+          if (!armyData.units) {
+            console.error('units is undefined', doc.id);
+            return;
+          }
+  
+          // This holds the final army units
+          const finalUnits = [];
+  
+          // Iterate over all units
+          for (const unit of armyData.units) {
+            // Find the corresponding squad in faction data
+            const squad = factionData.squads.find(s => s.name === unit.name);
+  
+            // Map models of each unit with wargear
+            const finalModels = unit.models.map(model => {
+              // Find the model in faction data
+              const factionModel = squad.models.find(m => m.name === model.name);
+
+              console.log(factionModel.wargear)
+              console.log("ksladjfksdjfkdasjfadjsf")
+
+              // Combine the model data with the faction model's wargear
+              return { ...model, wargear: factionModel.wargear };
+            });
+  
+            // Push the final unit with models including wargear
+            finalUnits.push({ ...unit, models: finalModels });
+          }
+  
+          return { id: doc.id, name: armyData.name, faction: factionData.name, units: finalUnits };
         }));
-        console.log(armiesData);
+  
+      
+  
         setArmies(armiesData);
       };
-
+  
       fetchArmies();
     }
   }, [isFocused]);
+  
 
   const renderItem = ({ item }) => (
     <TouchableOpacity onPress={() => navigation.navigate('EditArmy', { army: item })}>
-        <View style={styles.item}>
-      <Text style={styles.armyName}>Army: {item.name}</Text>
-      <Text style={styles.factionTitle}>Faction: {item.faction}</Text>
-      <Text style={styles.unitsTitle}>Units:</Text>
-      {item.units.map((unit, index) => (
-        <View key={index}>
-          <Text style={styles.unitText}>{unit.name} x {unit.count}</Text>
-          <Text style={styles.modelsTitle}>Models:</Text>
-          {unit.models.map((model, modelIndex) => (
-            <View key={modelIndex}>
-              <Text style={styles.modelText}>Model: {model.name} x {model.count}</Text>
-              <Text style={styles.wargearTitle}>Wargear:</Text>
-              {model.wargear.map((gear, gearIndex) => (
-                <Text key={gearIndex} style={styles.gearText}>{gear.name}</Text>
-              ))}
-            </View>
-          ))}
-        </View>
-      ))}
-    </View>
+      <View style={styles.item}>
+        <Text style={styles.armyName}>Army: {item.name}</Text>
+        <Text style={styles.factionTitle}>Faction: {item.faction}</Text>
+        <Text style={styles.unitsTitle}>Units:</Text>
+        {item.units.map((unit, index) => (
+          <View key={index}>
+            <Text style={styles.unitText}>{unit.name} x {unit.count}</Text>
+            {unit.models.map((model, modelIndex) => (
+              <View key={modelIndex}>
+                <Text style={styles.modelsTitle}>Model: {model.name} x {model.count}</Text>
+                <Text style={styles.wargearTitle}>Wargear:</Text>
+                {model.wargear.map((gear, gearIndex) => (
+                  <Text key={gearIndex} style={styles.gearText}>{gear}</Text>
+                ))}
+                <View style={styles.separator}></View>
+              </View>
+            ))}
+          </View>
+        ))}
+      </View>
     </TouchableOpacity>
-
   );
+  
   
   
   return (
@@ -102,18 +144,28 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontWeight: 'bold',
     marginTop: 10,
+    marginLeft: 10,
   },
   modelText: {
     fontSize: 14,
-    marginLeft: 10,
+    marginLeft: 20,
   },
   wargearTitle: {
     fontSize: 14,
     fontWeight: 'bold',
     marginTop: 10,
+    marginLeft: 30,
   },
   gearText: {
     fontSize: 14,
-    marginLeft: 20,
+    marginLeft: 40,
   },
+  separator: {
+    borderBottomColor: 'black',
+    borderBottomWidth: 1,
+    marginTop: 10,
+    marginBottom: 10,
+    width: '80%',
+    alignSelf: 'center'
+  }
 });

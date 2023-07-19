@@ -67,16 +67,15 @@ const CreateArmy = ({ navigation }) => {
 
     const updateArmyData = (callback) => {
         const armyData = {
-          name,
-          faction,
-          units: armyUnits.map(unit => ({
-            ...unit,
-            models: unit.models.map(model => ({
-              ...model,
-              wargear: model.wargear
-            }))
-          })),
-          userId: auth.currentUser.uid,
+            name,
+            faction,
+            units: armyUnits.map(unit => ({
+                ...unit,
+                models: unit.models.map(model => ({
+                    ...model
+                }))
+            })),
+            userId: auth.currentUser.uid,
         };
       
         // Set the data in the document
@@ -107,9 +106,10 @@ const CreateArmy = ({ navigation }) => {
 
         let clonedSquad = JSON.parse(JSON.stringify(selectedSquad));
         // Add a unique ID to the squad
-        clonedSquad.id = generateUniqueId();  // Replace uuidv4 with generateUniqueId
+        clonedSquad.id = generateUniqueId();  
 
         clonedSquad.models.forEach(model => {
+            console.log(model)
             // Find the corresponding model in the faction's models
             const factionModel = selectedFaction.models.find(m => m.name === model.name);
 
@@ -118,20 +118,8 @@ const CreateArmy = ({ navigation }) => {
                 console.error('Model does not exist or does not have defaultWargear');
                 return;
             }
-
-            // Map the wargear names to actual wargear objects
-            model.wargear = factionModel.defaultWargear.reduce((acc, gearName) => {
-                const gear = selectedFaction.wargear.find(gear => gear.name === gearName);
-                return gear ? [...acc, gear] : acc;
-            }, []);
-
-            // Set the model count to the minimum count
-            model.count = model.min;
+            model.id= generateUniqueId(); //generate unique id for each model
         });
-
-        // Filter out models where no wargear could be found
-        clonedSquad.models = clonedSquad.models.filter(model => model.wargear.length > 0);
-
         // Add the new squad to the army only if it has at least one model
         if (clonedSquad.models.length > 0) {
             setArmyUnits([...armyUnits, clonedSquad]);
@@ -154,8 +142,7 @@ const CreateArmy = ({ navigation }) => {
             units: armyUnits.map(unit => ({
                 ...unit,
                 models: unit.models.map(model => ({
-                    ...model,
-                    wargear: model.wargear
+                    ...model
                 }))
             })),
             userId: auth.currentUser.uid,
@@ -212,7 +199,7 @@ const CreateArmy = ({ navigation }) => {
 
 
             <Button title="Add Squad" onPress={handleAddSquad} disabled={!faction || !unit} />
-            <FlatList
+<FlatList
     data={armyUnits}
     renderItem={({ item }) => (
         <View style={styles.unitContainer}>
