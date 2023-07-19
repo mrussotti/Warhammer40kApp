@@ -27,7 +27,8 @@ const Army = ({ navigation }) => {
   }, [isFocused]);
 
   const renderItem = ({ item }) => (
-    <View style={styles.item}>
+    <TouchableOpacity onPress={() => navigation.navigate('EditArmy', { army: item })}>
+        <View style={styles.item}>
       <Text style={styles.armyName}>Army: {item.name}</Text>
       <Text style={styles.factionTitle}>Faction: {item.faction}</Text>
       <Text style={styles.unitsTitle}>Units:</Text>
@@ -47,6 +48,8 @@ const Army = ({ navigation }) => {
         </View>
       ))}
     </View>
+    </TouchableOpacity>
+
   );
   
   

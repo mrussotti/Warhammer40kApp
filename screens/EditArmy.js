@@ -1,11 +1,9 @@
-// screens/CreateArmy.js
+// screens/EditArmy.js
 import React, { useState, useEffect } from 'react';
 import { ScrollView, View, Text, TextInput, Button, FlatList, TouchableOpacity, StyleSheet } from 'react-native';
 import { db, auth } from '../firebase';
-import { v4 as uuidv4 } from 'react-native-uuid';
 
-
-const CreateArmy = ({ navigation }) => {
+const EditArmy = ({ navigation, route }) => {
     const [loading, setLoading] = useState(true);
     const [armyId, setArmyId] = useState(null);
     const [armyRef, setArmyRef] = useState(null);
@@ -16,12 +14,17 @@ const CreateArmy = ({ navigation }) => {
     const [units, setUnits] = useState([]);
     const [factions, setFactions] = useState([]);
     const [armyUnits, setArmyUnits] = useState([]);
+    const [army, setArmy] = useState(null);
 
     useEffect(() => {
-        // Create a new document reference and save the ID
-        const armyRef = db.collection('Armies').doc();
-        setArmyId(armyRef.id);
-        setArmyRef(armyRef);
+        if (route.params?.army) {
+            setArmy(route.params.army);
+            setArmyId(route.params.army.id);
+            setName(route.params.army.name);
+            setFaction(route.params.army.faction);
+            setArmyUnits(route.params.army.units);
+            setArmyRef(db.collection('Armies').doc(route.params.army.id));
+        }
     }, []);
 
     useEffect(() => {
@@ -32,9 +35,7 @@ const CreateArmy = ({ navigation }) => {
                     const faction = doc.data();
                     return { id: doc.id, ...faction };
                 });
-                // console.log('Factions fetched: '); // Add console.log here
                 setFactions(factionsArray);
-                setFaction(factionsArray[0].id);
                 setLoading(false);
             } catch (error) {
                 console.error('Error fetching factions:', error);
@@ -45,13 +46,15 @@ const CreateArmy = ({ navigation }) => {
 
     useEffect(() => {
         if (faction) {
-            const selectedFaction = factions.find(f => f.id === faction);
-            // console.log('Selected faction: ', selectedFaction); // Add console.log here
+          const selectedFaction = factions.find(f => f.id === faction);
+          if (selectedFaction) {
             setUnits(selectedFaction.squads);
-            setArmyUnits([]);
-            setUnit(selectedFaction.squads[0].name);
+          } else {
+            setUnits([]);
+          }
         }
-    }, [faction]);
+      }, [faction]);
+      
 
     const handleSquadPress = (squad) => {
         updateArmyData(() => {
@@ -63,7 +66,6 @@ const CreateArmy = ({ navigation }) => {
           });
         });
     }
-    
 
     const updateArmyData = (callback) => {
         const armyData = {
@@ -76,14 +78,18 @@ const CreateArmy = ({ navigation }) => {
               wargear: model.wargear
             }))
           })),
-          userId: auth.currentUser.uid,
         };
       
-        // Set the data in the document
-        armyRef.set(armyData).then(callback);
-        console.log("updated")
-      };
+        armyRef.update(armyData).then(callback);
+    };
 
+    const handleUpdate = () => {
+        updateArmyData(() => navigation.goBack());
+    };
+
+    if (loading) {
+        return <Text>Loading...</Text>;
+    }
 
 
     const handleAddSquad = () => {
@@ -144,9 +150,6 @@ const CreateArmy = ({ navigation }) => {
     function generateUniqueId() {
         return Date.now().toString(36) + Math.random().toString(36).substring(2);
     }
-
-
-
     const handleSubmit = () => {
         const armyData = {
             name,
@@ -167,11 +170,6 @@ const CreateArmy = ({ navigation }) => {
         });
     };
 
-
-
-    if (loading) {
-        return <Text>Loading...</Text>;
-    }
 
     return (
         <View style={styles.mainContainer}>
@@ -293,4 +291,6 @@ const styles = StyleSheet.create({
     }
 });
 
-export default CreateArmy;
+
+export default EditArmy;
+

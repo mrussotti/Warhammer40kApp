@@ -11,6 +11,7 @@ import CreateArmy from './screens/CreateArmy'; // Import the CreateArmy screen
 import { auth } from './firebase';
 import SquadCustomizationScreen from './screens/SquadCustomizationScreen';
 import ModelCustomizationScreen from './screens/ModelCustomizationScreen';
+import EditArmy from './screens/EditArmy';
 
 
 const Stack = createStackNavigator();
@@ -45,6 +46,7 @@ const App = () => {
             <Stack.Screen name="TestPlay" component={TestPlay} />
             <Stack.Screen name="SquadCustomization" component={SquadCustomizationScreen} />
             <Stack.Screen name="ModelCustomization" component={ModelCustomizationScreen} />
+            <Stack.Screen name="EditArmy" component={EditArmy} />
 
 
           </>
