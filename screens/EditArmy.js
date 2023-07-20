@@ -18,6 +18,7 @@ const EditArmy = ({ navigation, route }) => {
 
     useEffect(() => {
         if (route.params?.army) {
+            console.log(route.params.army.faction)
             setArmy(route.params.army);
             setArmyId(route.params.army.id);
             setName(route.params.army.name);
@@ -36,6 +37,8 @@ const EditArmy = ({ navigation, route }) => {
                     return { id: doc.id, ...faction };
                 });
                 setFactions(factionsArray);
+                // console.log(factionsArray)
+                console.log(faction)
                 setLoading(false);
             } catch (error) {
                 console.error('Error fetching factions:', error);
@@ -45,56 +48,60 @@ const EditArmy = ({ navigation, route }) => {
     }, []);
 
     useEffect(() => {
+ 
         if (faction) {
-          const selectedFaction = factions.find(f => f.id === faction);
-          if (selectedFaction) {
-            setUnits(selectedFaction.squads);
-          } else {
-            setUnits([]);
-          }
-        }
-      }, [faction]);
-      
+            const selectedFaction = factions.find(f => f.name === faction);
 
-    const handleSquadPress = (squad) => {
+            if (selectedFaction) {
+                setUnits(selectedFaction.squads);
+            } else {
+                setUnits([]);
+            }
+        }
+    }, [faction]);
+
+
+    const handleSquadPress = (squadID) => {
         updateArmyData(() => {
-          navigation.navigate('SquadCustomization', {
-            squad: squad,
-            armyId: armyId,
-            setArmyUnits: setArmyUnits,
-            armyUnits: armyUnits
-          });
+            navigation.navigate('SquadCustomization', {
+                armyId: armyId,
+                squadId: squadID,
+            });
         });
     }
 
     const updateArmyData = (callback) => {
+        // Find the selected faction by id
+        const selectedFaction = factions.find(f => f.name === faction);
+
+        // check if selectedFaction is defined
+        if (!selectedFaction) {
+            console.error('Faction not found');
+            return;
+        }
+
         const armyData = {
-          name,
-          faction,
-          units: armyUnits.map(unit => ({
-            ...unit,
-            models: unit.models.map(model => ({
-              ...model,
-              wargear: model.wargear
-            }))
-          })),
+            name,
+            faction: selectedFaction.name, // Use faction name instead of id
+            units: armyUnits.map(unit => ({
+                ...unit,
+                models: unit.models.map(model => ({
+                    ...model
+                }))
+            })),
+            userId: auth.currentUser.uid,
         };
-      
-        armyRef.update(armyData).then(callback);
+
+        // Set the data in the document
+        armyRef.set(armyData).then(callback);
+        console.log("updated")
     };
 
-    const handleUpdate = () => {
-        updateArmyData(() => navigation.goBack());
-    };
-
-    if (loading) {
-        return <Text>Loading...</Text>;
-    }
 
 
     const handleAddSquad = () => {
         // Find the selected faction
-        const selectedFaction = factions.find(f => f.id === faction);
+        const selectedFaction = factions.find(f => f.name === faction);
 
         // If selectedFaction can't be found, don't continue
         if (!selectedFaction) {
@@ -113,9 +120,12 @@ const EditArmy = ({ navigation, route }) => {
 
         let clonedSquad = JSON.parse(JSON.stringify(selectedSquad));
         // Add a unique ID to the squad
-        clonedSquad.id = generateUniqueId();  // Replace uuidv4 with generateUniqueId
+        clonedSquad.id = generateUniqueId();
+        // console.log(clonedSquad)
+
 
         clonedSquad.models.forEach(model => {
+            // console.log(model)
             // Find the corresponding model in the faction's models
             const factionModel = selectedFaction.models.find(m => m.name === model.name);
 
@@ -124,20 +134,8 @@ const EditArmy = ({ navigation, route }) => {
                 console.error('Model does not exist or does not have defaultWargear');
                 return;
             }
-
-            // Map the wargear names to actual wargear objects
-            model.wargear = factionModel.defaultWargear.reduce((acc, gearName) => {
-                const gear = selectedFaction.wargear.find(gear => gear.name === gearName);
-                return gear ? [...acc, gear] : acc;
-            }, []);
-
-            // Set the model count to the minimum count
-            model.count = model.min;
+            model.id = generateUniqueId(); //generate unique id for each model
         });
-
-        // Filter out models where no wargear could be found
-        clonedSquad.models = clonedSquad.models.filter(model => model.wargear.length > 0);
-
         // Add the new squad to the army only if it has at least one model
         if (clonedSquad.models.length > 0) {
             setArmyUnits([...armyUnits, clonedSquad]);
@@ -151,14 +149,16 @@ const EditArmy = ({ navigation, route }) => {
         return Date.now().toString(36) + Math.random().toString(36).substring(2);
     }
     const handleSubmit = () => {
+        // Find the selected faction by id
+        const selectedFaction = factions.find(f => f.name === faction);
+
         const armyData = {
             name,
-            faction,
+            faction: selectedFaction.name, // Use faction name instead of id
             units: armyUnits.map(unit => ({
                 ...unit,
                 models: unit.models.map(model => ({
-                    ...model,
-                    wargear: model.wargear
+                    ...model
                 }))
             })),
             userId: auth.currentUser.uid,
@@ -169,7 +169,6 @@ const EditArmy = ({ navigation, route }) => {
             navigation.goBack();
         });
     };
-
 
     return (
         <View style={styles.mainContainer}>
@@ -184,9 +183,9 @@ const EditArmy = ({ navigation, route }) => {
                     <View key={index} style={styles.radioButton}>
                         <TouchableOpacity
                             style={styles.circle}
-                            onPress={() => setFaction(f.id)}
+                            onPress={() => setFaction(f.name)}
                         >
-                            {faction === f.id && <View style={styles.checkedCircle} />}
+                            {faction === f.name && <View style={styles.checkedCircle} />}
                         </TouchableOpacity>
                         <Text style={styles.radioText}>{f.name}</Text>
                     </View>
@@ -211,26 +210,27 @@ const EditArmy = ({ navigation, route }) => {
 
             <Button title="Add Squad" onPress={handleAddSquad} disabled={!faction || !unit} />
             <FlatList
-    data={armyUnits}
-    renderItem={({ item }) => (
-        <View style={styles.unitContainer}>
-            <TouchableOpacity onPress={() => handleSquadPress(item)}>
-                <Text style={styles.unitText}>{item.name} x {item.count}</Text>
-            </TouchableOpacity>
-            <View style={styles.modelsContainer}>
-                {item.models.map((model, index) => (
-                    <Text key={index} style={styles.modelText}>{model.name} x {model.count}</Text>
-                ))}
-            </View>
-        </View>
-    )}
-    keyExtractor={(item, index) => index.toString()}
-    ListFooterComponent={
-        <Button title="Submit" onPress={handleSubmit} />
-    }
-/>
+                data={armyUnits}
+                renderItem={({ item }) => {
+                    return (
+                        <View style={styles.unitContainer}>
+                            <TouchableOpacity onPress={() => handleSquadPress(item.id)}>
+                                <Text style={styles.unitText}>{item.name}</Text>
+                            </TouchableOpacity>
+                            <View style={styles.modelsContainer}>
+                                {item.models.map((model, index) => (
+                                    <Text key={index} style={styles.modelText}>{model.name}</Text>
+                                ))}
+                            </View>
+                        </View>
+                    );
+                }}
+                keyExtractor={(item, index) => index.toString()}
+                ListFooterComponent={<Button title="Submit" onPress={handleSubmit} />}
+            />
 
-            <Button title="Update Army" onPress={() => updateArmyData(() => {})} />
+
+            <Button title="Update Army" onPress={() => updateArmyData(() => { })} />
 
         </View>
     );

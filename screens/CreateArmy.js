@@ -2,7 +2,6 @@
 import React, { useState, useEffect } from 'react';
 import { ScrollView, View, Text, TextInput, Button, FlatList, TouchableOpacity, StyleSheet } from 'react-native';
 import { db, auth } from '../firebase';
-import { v4 as uuidv4 } from 'react-native-uuid';
 
 
 const CreateArmy = ({ navigation }) => {
@@ -34,7 +33,7 @@ const CreateArmy = ({ navigation }) => {
                 });
                 // console.log('Factions fetched: '); // Add console.log here
                 setFactions(factionsArray);
-                setFaction(factionsArray[0].id);
+                setFaction(factionsArray[0].name);
                 setLoading(false);
             } catch (error) {
                 console.error('Error fetching factions:', error);
@@ -45,7 +44,7 @@ const CreateArmy = ({ navigation }) => {
 
     useEffect(() => {
         if (faction) {
-            const selectedFaction = factions.find(f => f.id === faction);
+            const selectedFaction = factions.find(f => f.name === faction);
             // console.log('Selected faction: ', selectedFaction); // Add console.log here
             setUnits(selectedFaction.squads);
             setArmyUnits([]);
@@ -53,40 +52,43 @@ const CreateArmy = ({ navigation }) => {
         }
     }, [faction]);
 
-const handleSquadPress = (squad) => {
+const handleSquadPress = (squadID) => {
     updateArmyData(() => {
       navigation.navigate('SquadCustomization', {
         armyId: armyId,
-        squadId: squad.id,
+        squadId: squadID,
       });
     });
 }
 
     
 
-    const updateArmyData = (callback) => {
-        const armyData = {
-            name,
-            faction,
-            units: armyUnits.map(unit => ({
-                ...unit,
-                models: unit.models.map(model => ({
-                    ...model
-                }))
-            })),
-            userId: auth.currentUser.uid,
-        };
-      
-        // Set the data in the document
-        armyRef.set(armyData).then(callback);
-        console.log("updated")
-      };
+const updateArmyData = (callback) => {
+    // Find the selected faction by id
+    const selectedFaction = factions.find(f => f.name === faction);
+
+    const armyData = {
+        name,
+        faction: selectedFaction.name, // Use faction name instead of id
+        units: armyUnits.map(unit => ({
+            ...unit,
+            models: unit.models.map(model => ({
+                ...model
+            }))
+        })),
+        userId: auth.currentUser.uid,
+    };
+  
+    // Set the data in the document
+    armyRef.set(armyData).then(callback);
+    console.log("updated")
+};
 
 
 
     const handleAddSquad = () => {
         // Find the selected faction
-        const selectedFaction = factions.find(f => f.id === faction);
+        const selectedFaction = factions.find(f => f.name === faction);
 
         // If selectedFaction can't be found, don't continue
         if (!selectedFaction) {
@@ -105,7 +107,9 @@ const handleSquadPress = (squad) => {
 
         let clonedSquad = JSON.parse(JSON.stringify(selectedSquad));
         // Add a unique ID to the squad
-        clonedSquad.id = generateUniqueId();  
+        clonedSquad.id = generateUniqueId(); 
+        console.log(clonedSquad)
+ 
 
         clonedSquad.models.forEach(model => {
             console.log(model)
@@ -135,9 +139,12 @@ const handleSquadPress = (squad) => {
 
 
     const handleSubmit = () => {
+        // Find the selected faction by id
+        const selectedFaction = factions.find(f => f.name === faction);
+    
         const armyData = {
             name,
-            faction,
+            faction: selectedFaction.name, // Use faction name instead of id
             units: armyUnits.map(unit => ({
                 ...unit,
                 models: unit.models.map(model => ({
@@ -146,13 +153,12 @@ const handleSquadPress = (squad) => {
             })),
             userId: auth.currentUser.uid,
         };
-
+    
         // Set the data in the document
         armyRef.set(armyData).then(() => {
             navigation.goBack();
         });
     };
-
 
 
     if (loading) {
@@ -172,9 +178,9 @@ const handleSquadPress = (squad) => {
                     <View key={index} style={styles.radioButton}>
                         <TouchableOpacity
                             style={styles.circle}
-                            onPress={() => setFaction(f.id)}
+                            onPress={() => setFaction(f.name)}
                         >
-                            {faction === f.id && <View style={styles.checkedCircle} />}
+                            {faction === f.name && <View style={styles.checkedCircle} />}
                         </TouchableOpacity>
                         <Text style={styles.radioText}>{f.name}</Text>
                     </View>
@@ -198,27 +204,28 @@ const handleSquadPress = (squad) => {
 
 
             <Button title="Add Squad" onPress={handleAddSquad} disabled={!faction || !unit} />
-<FlatList
-    data={armyUnits}
-    renderItem={({ item }) => (
-        <View style={styles.unitContainer}>
-            <TouchableOpacity onPress={() => handleSquadPress(item)}>
-                <Text style={styles.unitText}>{item.name} x {item.count}</Text>
-            </TouchableOpacity>
-            <View style={styles.modelsContainer}>
-                {item.models.map((model, index) => (
-                    <Text key={index} style={styles.modelText}>{model.name} x {model.count}</Text>
-                ))}
-            </View>
-        </View>
-    )}
-    keyExtractor={(item, index) => index.toString()}
-    ListFooterComponent={
-        <Button title="Submit" onPress={handleSubmit} />
-    }
-/>
+            <FlatList
+                data={armyUnits}
+                renderItem={({ item }) => {
+                    return (
+                        <View style={styles.unitContainer}>
+                            <TouchableOpacity onPress={() => handleSquadPress(item.id)}>
+                                <Text style={styles.unitText}>{item.name}</Text>
+                            </TouchableOpacity>
+                            <View style={styles.modelsContainer}>
+                                {item.models.map((model, index) => (
+                                    <Text key={index} style={styles.modelText}>{model.name}</Text>
+                                ))}
+                            </View>
+                        </View>
+                    );
+                }}
+                keyExtractor={(item, index) => index.toString()}
+                ListFooterComponent={<Button title="Submit" onPress={handleSubmit} />}
+            />
 
-            <Button title="Update Army" onPress={() => updateArmyData(() => {})} />
+
+            <Button title="Update Army" onPress={() => updateArmyData(() => { })} />
 
         </View>
     );
