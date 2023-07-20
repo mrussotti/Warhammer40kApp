@@ -27,6 +27,24 @@ const EditArmy = ({ navigation, route }) => {
         }
     }, []);
 
+
+    useEffect(() => {
+        if(armyRef) {
+            const unsubscribe = armyRef.onSnapshot((doc) => {
+                const data = doc.data();
+                if (data) {
+                    setName(data.name);
+                    setFaction(data.faction);
+                    setArmyUnits(data.units);
+                }
+            });
+    
+            // Clean up the subscription on unmount
+            return () => unsubscribe();
+        }
+    }, [armyRef]);
+    
+
     useEffect(() => {
         const fetchFactions = async () => {
             try {

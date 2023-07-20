@@ -6,22 +6,19 @@ const SquadCustomizationScreen = ({ route, navigation }) => {
     const { armyId, squadId } = route.params;
     const [squad, setSquad] = useState(null);
     const [models, setModels] = useState([]);
+    const modelCounts = {};
+
 
     useEffect(() => {
-        // Fetch the specific squad data when the screen opens
         const armyRef = db.collection('Armies').doc(armyId);
         const unsubscribe = armyRef.onSnapshot(async doc => {
             const data = doc.data();
             const updatedSquad = data.units.find(unit => unit.id === squadId);
-            console.log(squadId)
             if (updatedSquad) {
-                console.log("updated shit")
                 setSquad(updatedSquad);
                 setModels(updatedSquad.models);
             }
         });
-
-        // Clean up the subscription on unmount
         return () => unsubscribe();
     }, []);
 
@@ -30,43 +27,67 @@ const SquadCustomizationScreen = ({ route, navigation }) => {
             modelId: model.id,
         });
     };
-    
 
     const updateArmy = async () => {
         const updatedSquad = { ...squad, models: models };
-
         const armyRef = db.collection('Armies').doc(armyId);
         const armySnapshot = await armyRef.get();
         let armyData = armySnapshot.data();
-
         let updatedUnits = armyData.units.map(unit => unit.id === squadId ? { ...unit, models: models } : unit);
-        console.log(updatedUnits)
         await armyRef.update({ units: updatedUnits });
-
     };
 
     const countModels = (models) => {
-        const modelCounts = {};
-
         models.forEach(model => {
             modelCounts[model.name] = (modelCounts[model.name] || 0) + 1;
         });
-
         return modelCounts;
     };
+
+    const canAddModel = (modelName) => {
+        const modelRule = squad.rules.find(rule => rule.name === modelName);
+        return modelCounts[modelName] < modelRule.max;
+    }
+
+    const canRemoveModel = (modelName) => {
+        const modelRule = squad.rules.find(rule => rule.name === modelName);
+        return modelCounts[modelName] > modelRule.min;
+    }
+
+    const addModel = (modelName) => {
+        if (canAddModel(modelName)) {
+            const newModel = { ...models[0], id: Math.random().toString(), name: modelName };
+            setModels([...models, newModel]);
+        }
+    }
+
+    const removeModel = (modelName) => {
+        if (canRemoveModel(modelName)) {
+            const firstIndexOfModel = models.findIndex(model => model.name === modelName);
+            if (firstIndexOfModel > -1) {
+                setModels(models.filter((_, index) => index !== firstIndexOfModel));
+            }
+        }
+    }
 
     return (
         <View style={styles.container}>
             <Text style={styles.title}>Squad Customization</Text>
             <Text style={styles.squadInfo}>{squad ? squad.name : 'Loading...'}</Text>
             {models && (
-                <>
-                    <Text style={styles.title}>Model Counts:</Text>
-                    {Object.entries(countModels(models)).map(([modelName, count], index) => (
-                        <Text key={index} style={styles.squadInfo}>{modelName}: {count}</Text>
-                    ))}
-                </>
-            )}
+        <>
+            <Text style={styles.title}>Model Counts:</Text>
+            {Object.entries(countModels(models)).map(([modelName, count], index) => (
+                <View key={index} style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <Text style={styles.squadInfo}>{modelName}: {count}</Text>
+                    <View style={{ flexDirection: 'row' }}>
+                        {canAddModel(modelName) && <Button title="+" onPress={() => addModel(modelName)} />}
+                        {canRemoveModel(modelName) && <Button title="-" onPress={() => removeModel(modelName)} />}
+                    </View>
+                </View>
+            ))}
+        </>
+    )}
             <FlatList
                 data={models}
                 renderItem={({ item }) => (
@@ -112,13 +133,6 @@ const styles = StyleSheet.create({
         marginBottom: 10,
         color: '#333', 
     },
-    squadItem: {
-        marginBottom: 15,
-        borderColor: '#ddd', 
-        borderWidth: 1, 
-        padding: 10,
-        borderRadius: 5,
-    },
     submitButton: {
         marginTop: 20,
         backgroundColor: '#3498db', 
@@ -138,4 +152,3 @@ const styles = StyleSheet.create({
         color: '#2c3e50',
     },
 });
-
