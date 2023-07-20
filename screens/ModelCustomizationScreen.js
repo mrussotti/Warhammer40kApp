@@ -4,7 +4,7 @@ import { View, Text, Button, FlatList, TouchableOpacity, StyleSheet } from 'reac
 import { db } from '../firebase';
 
 const ModelCustomizationScreen = ({ route, navigation }) => {
-    const { model, handleModelUpdate, squadSize } = route.params;
+    const { modelId, handleModelUpdate, squadSize } = route.params;
     const [wargear, setWargear] = useState(model.wargear || []);
     const [wargearOptions, setWargearOptions] = useState([]);
 

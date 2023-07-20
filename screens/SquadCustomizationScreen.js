@@ -9,9 +9,6 @@ const SquadCustomizationScreen = ({ route, navigation }) => {
 
     useEffect(() => {
         // Fetch the specific squad data when the screen opens
-        console.log(armyId)
-    console.log(squadId)
-    console.log("nutskjdl")
         const armyRef = db.collection('Armies').doc(armyId);
         const unsubscribe = armyRef.onSnapshot(async doc => {
             const data = doc.data();
@@ -30,14 +27,10 @@ const SquadCustomizationScreen = ({ route, navigation }) => {
 
     const handleModelPress = (model) => {
         navigation.navigate('ModelCustomization', {
-            model: model,
+            modelId: model.id,
         });
     };
     
-
-    const handleModelUpdate = (updatedModel) => {
-        setModels(models.map((m) => m.name === updatedModel.name ? updatedModel : m));
-    };
 
     const updateArmy = async () => {
         const updatedSquad = { ...squad, models: models };
@@ -47,8 +40,9 @@ const SquadCustomizationScreen = ({ route, navigation }) => {
         let armyData = armySnapshot.data();
 
         let updatedUnits = armyData.units.map(unit => unit.id === squadId ? { ...unit, models: models } : unit);
-        
+        console.log(updatedUnits)
         await armyRef.update({ units: updatedUnits });
+
     };
 
     return (
@@ -58,7 +52,7 @@ const SquadCustomizationScreen = ({ route, navigation }) => {
             <FlatList
                 data={models}
                 renderItem={({ item }) => (
-                    <View>
+                    <View style={styles.modelItem}>
                         <TouchableOpacity onPress={() => handleModelPress(item)}>
                             <Text>{item.name}</Text>
                         </TouchableOpacity>
@@ -66,7 +60,7 @@ const SquadCustomizationScreen = ({ route, navigation }) => {
                         <FlatList
                             data={item.wargear}
                             renderItem={({ item }) => (
-                                <Text>{item}</Text>
+                                <Text style={styles.wargearItem}>{item}</Text>
                             )}
                             keyExtractor={(item, index) => index.toString()}
                         />
@@ -74,10 +68,13 @@ const SquadCustomizationScreen = ({ route, navigation }) => {
                 )}
                 keyExtractor={(item, index) => index.toString()}
             />
-
-            <Button title="Update Army" onPress={updateArmy} style={styles.submitButton} />
+    
+            <TouchableOpacity onPress={updateArmy} style={styles.submitButton}>
+                <Text style={{ color: '#fff', textAlign: 'center' }}>Update Army</Text>
+            </TouchableOpacity>
         </View>
     );
+    
 };
 
 export default SquadCustomizationScreen;
@@ -92,15 +89,37 @@ const styles = StyleSheet.create({
         fontSize: 24,
         fontWeight: 'bold',
         marginBottom: 15,
+        textAlign: 'center', 
     },
     squadInfo: {
         fontSize: 18,
         marginBottom: 10,
+        color: '#333', 
     },
     squadItem: {
         marginBottom: 15,
+        borderColor: '#ddd', 
+        borderWidth: 1, 
+        padding: 10,
+        borderRadius: 5,
     },
     submitButton: {
         marginTop: 20,
+        backgroundColor: '#3498db', 
+        color: '#fff', 
+        padding: 10, 
+        borderRadius: 5, 
+    },
+    modelItem: { 
+        marginTop: 10,
+        padding: 10,
+        backgroundColor: '#ecf0f1',
+        borderRadius: 5,
+    },
+    wargearItem: { 
+        marginTop: 5,
+        fontSize: 16,
+        color: '#2c3e50',
     },
 });
+
