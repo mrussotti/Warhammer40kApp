@@ -1,5 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { View, Text, Button, FlatList, TouchableOpacity, StyleSheet } from 'react-native';
+import { useFocusEffect } from '@react-navigation/native'; // <--- import useFocusEffect
 import { db } from '../firebase';
 
 const SquadCustomizationScreen = ({ route, navigation }) => {
@@ -9,22 +10,29 @@ const SquadCustomizationScreen = ({ route, navigation }) => {
     const modelCounts = {};
 
 
-    useEffect(() => {
-        const armyRef = db.collection('Armies').doc(armyId);
-        const unsubscribe = armyRef.onSnapshot(async doc => {
-            const data = doc.data();
-            const updatedSquad = data.units.find(unit => unit.id === squadId);
-            if (updatedSquad) {
-                setSquad(updatedSquad);
-                setModels(updatedSquad.models);
-            }
-        });
-        return () => unsubscribe();
-    }, []);
+    useFocusEffect(
+        useCallback(() => {
+            const armyRef = db.collection('Armies').doc(armyId);
+            const unsubscribe = armyRef.onSnapshot(async doc => {
+                const data = doc.data();
+                const updatedSquad = data.units.find(unit => unit.id === squadId);
+                if (updatedSquad) {
+                    setSquad(updatedSquad);
+                    setModels(updatedSquad.models);
+                }
+            });
+            return () => unsubscribe();
+        }, [])
+    );
+
+
+    
 
     const handleModelPress = (model) => {
         navigation.navigate('ModelCustomization', {
+            squadId: squadId,
             modelId: model.id,
+            armyId: armyId
         });
     };
 
