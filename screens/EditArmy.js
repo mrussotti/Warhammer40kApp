@@ -18,7 +18,6 @@ const EditArmy = ({ navigation, route }) => {
 
     useEffect(() => {
         if (route.params?.army) {
-            console.log(route.params.army.faction)
             setArmy(route.params.army);
             setArmyId(route.params.army.id);
             setName(route.params.army.name);
@@ -36,9 +35,14 @@ const EditArmy = ({ navigation, route }) => {
                     const faction = doc.data();
                     return { id: doc.id, ...faction };
                 });
+                console.log(factionsArray)
                 setFactions(factionsArray);
-                // console.log(factionsArray)
-                console.log(faction)
+                
+                // Set the first faction if any are fetched
+                if(factionsArray.length > 0) {
+                    setFaction(factionsArray[0].name);
+                }
+    
                 setLoading(false);
             } catch (error) {
                 console.error('Error fetching factions:', error);
@@ -46,20 +50,26 @@ const EditArmy = ({ navigation, route }) => {
         };
         fetchFactions();
     }, []);
+    
 
     useEffect(() => {
- 
         if (faction) {
             const selectedFaction = factions.find(f => f.name === faction);
-
             if (selectedFaction) {
                 setUnits(selectedFaction.squads);
             } else {
                 setUnits([]);
             }
         }
-    }, [faction]);
-
+    }, [faction, factions]);
+    
+    // Add this useEffect hook here
+    useEffect(() => {
+        if (units.length > 0) {
+            setUnit(units[0].name);
+        }
+    }, [units]);
+    
 
     const handleSquadPress = (squadID) => {
         updateArmyData(() => {
@@ -94,7 +104,6 @@ const EditArmy = ({ navigation, route }) => {
 
         // Set the data in the document
         armyRef.set(armyData).then(callback);
-        console.log("updated")
     };
 
 

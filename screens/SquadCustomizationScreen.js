@@ -45,10 +45,28 @@ const SquadCustomizationScreen = ({ route, navigation }) => {
 
     };
 
+    const countModels = (models) => {
+        const modelCounts = {};
+
+        models.forEach(model => {
+            modelCounts[model.name] = (modelCounts[model.name] || 0) + 1;
+        });
+
+        return modelCounts;
+    };
+
     return (
         <View style={styles.container}>
             <Text style={styles.title}>Squad Customization</Text>
             <Text style={styles.squadInfo}>{squad ? squad.name : 'Loading...'}</Text>
+            {models && (
+                <>
+                    <Text style={styles.title}>Model Counts:</Text>
+                    {Object.entries(countModels(models)).map(([modelName, count], index) => (
+                        <Text key={index} style={styles.squadInfo}>{modelName}: {count}</Text>
+                    ))}
+                </>
+            )}
             <FlatList
                 data={models}
                 renderItem={({ item }) => (
@@ -68,13 +86,11 @@ const SquadCustomizationScreen = ({ route, navigation }) => {
                 )}
                 keyExtractor={(item, index) => index.toString()}
             />
-    
             <TouchableOpacity onPress={updateArmy} style={styles.submitButton}>
                 <Text style={{ color: '#fff', textAlign: 'center' }}>Update Army</Text>
             </TouchableOpacity>
         </View>
     );
-    
 };
 
 export default SquadCustomizationScreen;
