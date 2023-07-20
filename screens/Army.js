@@ -12,17 +12,12 @@ const Army = ({ navigation }) => {
     if (isFocused) {
       const fetchArmies = async () => {
         const armiesSnapshot = await db.collection('Armies').where('userId', '==', auth.currentUser.uid).get();
-        const armiesData = await Promise.all(armiesSnapshot.docs.map(async doc => {
+        
+        const armiesData = armiesSnapshot.docs.map(doc => {
           const armyData = doc.data();
+  
           if (!armyData) {
             console.error('armyData is undefined', doc.id);
-            return;
-          }
-  
-          const factionSnapshot = await db.collection('factions').doc(armyData.faction).get();
-          const factionData = factionSnapshot.data();
-          if (!factionData) {
-            console.error('factionData is undefined', doc.id);
             return;
           }
   
@@ -31,41 +26,23 @@ const Army = ({ navigation }) => {
             return;
           }
   
-          // This holds the final army units
-          const finalUnits = [];
+          // Since each unit already contains its models, we can directly use them.
+          const finalUnits = armyData.units;
   
-          // Iterate over all units
-          for (const unit of armyData.units) {
-            // Find the corresponding squad in faction data
-            const squad = factionData.squads.find(s => s.name === unit.name);
+          // Return the complete army data
+          return { id: doc.id, ...armyData, units: finalUnits };
+        });
   
-            // Map models of each unit with wargear
-            const finalModels = unit.models.map(model => {
-              // Find the model in faction data
-              const factionModel = squad.models.find(m => m.name === model.name);
-
-              console.log(factionModel.wargear)
-              console.log("ksladjfksdjfkdasjfadjsf")
-
-              // Combine the model data with the faction model's wargear
-              return { ...model, wargear: factionModel.wargear };
-            });
-  
-            // Push the final unit with models including wargear
-            finalUnits.push({ ...unit, models: finalModels });
-          }
-  
-          return { id: doc.id, name: armyData.name, faction: factionData.name, units: finalUnits };
-        }));
-  
-      
-  
-        setArmies(armiesData);
+        // Filter out any undefined values (from the errors) and set the armies data.
+        setArmies(armiesData.filter(Boolean));
       };
   
       fetchArmies();
     }
   }, [isFocused]);
+  
+  
+  
   
 
   const renderItem = ({ item }) => (

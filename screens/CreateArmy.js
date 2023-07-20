@@ -53,16 +53,15 @@ const CreateArmy = ({ navigation }) => {
         }
     }, [faction]);
 
-    const handleSquadPress = (squad) => {
-        updateArmyData(() => {
-          navigation.navigate('SquadCustomization', {
-            squad: squad,
-            armyId: armyId,
-            setArmyUnits: setArmyUnits,
-            armyUnits: armyUnits
-          });
-        });
-    }
+const handleSquadPress = (squad) => {
+    updateArmyData(() => {
+      navigation.navigate('SquadCustomization', {
+        armyId: armyId,
+        squadId: squad.id,
+      });
+    });
+}
+
     
 
     const updateArmyData = (callback) => {

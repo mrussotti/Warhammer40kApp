@@ -1,21 +1,21 @@
-//screens/SquadCustomizationScreen.js
 import React, { useState, useEffect } from 'react';
 import { View, Text, Button, FlatList, TouchableOpacity, StyleSheet } from 'react-native';
 import { db } from '../firebase';
 
 const SquadCustomizationScreen = ({ route, navigation }) => {
-    const { squad, armyId, setArmyUnits, armyUnits } = route.params;
-    const [models, setModels] = useState(squad.models.map(model => ({ ...model, count: model.min })) || []);
-    const factionId = squad.factionId;
+    const { armyId, squadId } = route.params;
+    const [squad, setSquad] = useState(null);
+    const [models, setModels] = useState([]);
+    const [totalCount, setTotalCount] = useState(0); // For Total Count
 
     useEffect(() => {
-        // Fetch the latest army data when the screen opens
+        // Fetch the latest army and squad data when the screen opens
         const armyRef = db.collection('Armies').doc(armyId);
-        const unsubscribe = armyRef.onSnapshot(doc => {
+        const unsubscribe = armyRef.onSnapshot(async doc => {
             const data = doc.data();
-            setArmyUnits(data.units);
-            const updatedSquad = data.units.find(unit => unit.id === squad.id);
+            const updatedSquad = data.units.find(unit => unit.id === squadId);
             if (updatedSquad) {
+                setSquad(updatedSquad);
                 setModels(updatedSquad.models);
             }
         });
@@ -24,28 +24,21 @@ const SquadCustomizationScreen = ({ route, navigation }) => {
         return () => unsubscribe();
     }, []);
 
+    useEffect(() => {
+        const newTotalCount = models.reduce((sum, model) => sum + model.count, 0);
+        setTotalCount(newTotalCount);
+    }, [models]);
 
     const updateArmy = async () => {
         const updatedSquad = { ...squad, models: models };
-        const updatedArmyUnits = armyUnits.map(unit => unit.id === updatedSquad.id ? updatedSquad : unit);
-        setArmyUnits(updatedArmyUnits);
 
         const squadSize = models.reduce((sum, model) => sum + model.count, 0);
+        const factionRef = db.collection('factions').doc(squad.factionId);
 
-        try {
-            const docRef = db.collection('factions').doc(factionId).collection('squads').doc(updatedSquad.id);
-            const docSnap = await docRef.get();
+        const squadsRef = factionRef.collection('squads').doc(squad.id);
+        await squadsRef.update({ squadSize: squadSize, models: models });
 
-            if (docSnap.exists) {
-                await docRef.update({ squadSize: squadSize });
-            } else {
-                await docRef.set({ ...updatedSquad, squadSize: squadSize });
-            }
-
-            console.log(`Squad size updated to: ${squadSize}`);
-        } catch (error) {
-            console.error("Error updating squad size: ", error);
-        }
+        console.log(`Squad size updated to: ${squadSize}`);
     };
 
     const handleModelPress = (model) => {
@@ -58,22 +51,18 @@ const SquadCustomizationScreen = ({ route, navigation }) => {
         });
     };
 
-
     const handleModelCountChange = (model, newCount) => {
         setModels(models.map((m) => m.name === model.name ? { ...m, count: newCount } : m));
     };
-
     const handleModelUpdate = (updatedModel) => {
         setModels(models.map((m) => m.name === updatedModel.name ? updatedModel : m));
     };
-
-
-
 
     return (
         <View style={styles.container}>
             <Text style={styles.title}>Squad Customization</Text>
             <Text style={styles.squadInfo}>{squad.name}</Text>
+            <Text style={styles.squadInfo}>Total Count: {totalCount}</Text> 
             <FlatList
                 data={models}
                 renderItem={({ item }) => (
@@ -85,11 +74,11 @@ const SquadCustomizationScreen = ({ route, navigation }) => {
                         <Text>Min: {item.min} Max: {item.max}</Text>
                         <Button title="-" onPress={() => handleModelCountChange(item, Math.max(item.min, item.count - 1))} />
                         <Button title="+" onPress={() => handleModelCountChange(item, Math.min(item.max, item.count + 1))} />
-                        <Text>Wargear options: </Text>
+                        <Text>Wargear: </Text>
                         <FlatList
-                            data={item.wargearOptions}
+                            data={item.wargear}
                             renderItem={({ item }) => (
-                                <Text>{item.options.join(', ')} (replaces {item.replace})</Text>
+                                <Text>{item}</Text>
                             )}
                             keyExtractor={(item, index) => index.toString()}
                         />
