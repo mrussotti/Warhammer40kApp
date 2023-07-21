@@ -42,9 +42,7 @@ const ModelCustomizationScreen = ({ route, navigation }) => {
                     const modelRule = updatedSquad.rules.find(rule => rule.name === updatedModel.name);
                     if (modelRule) {
                         const options = getWargearOptions(modelRule.wargearOptions, updatedSquad);
-                        console.log("))))))))))))))))))))0")
 
-                        console.log(options)
                         setWargearOptions(options);
                     }
                 }
@@ -60,59 +58,133 @@ const ModelCustomizationScreen = ({ route, navigation }) => {
         }
       };
       
-      const handleSelectOption = (option) => {
-        if (wargearToReplace) {
-          const newWargear = model.wargear.map(gear => gear === wargearToReplace ? option : gear);
-          const updatedModel = { ...model, wargear: newWargear };
-          setModel(updatedModel);
-          setWargearToReplace(null);
-        }
-      };
-      const handleConfirm = async () => {
-        // Update the model's currentWargear with the selected wargear
-        if (model && army) { // <-- add army to the check
-            const updatedModel = { ...model, currentWargear: selectedWargear };
-    
-            // Find the index of the model in the squad
-            const modelIndex = squad.models.findIndex(m => m.id === model.id);
-    
-            // Replace the old model with the updated one
-            const updatedModels = [...squad.models];
-            updatedModels[modelIndex] = updatedModel;
-    
-            // Update the squad's models
-            const updatedSquad = { ...squad, models: updatedModels };
-    
-            // Find the index of the squad in the army's units
-            const squadIndex = army.units.findIndex(unit => unit.id === squad.id); // <-- use army.units here
-    
-            // Replace the old squad with the updated one
-            const updatedUnits = [...army.units]; // <-- use army.units here
-            updatedUnits[squadIndex] = updatedSquad;
-    
-            // Update the army's units in Firebase
-            await armyRef.current.update({ // <-- use the ref in handleConfirm
-                units: updatedUnits
-            });
-        }
-    };
-    
-
-
-
-
-    const getWargearOptions = (rules, squad) => {
+      const getWargearOptions = (rules, squad) => {
         const availableOptions = [];
         rules.forEach(rule => {
-            const { for: ruleFor, if: ruleIf, options, replace } = rule;
+            const { for: ruleFor, if: ruleIf, options, replace, max } = rule;
             const modelCount = squad.models.filter(model => model.name === ruleFor).length;
             // Check if the rule has a condition. If it doesn't, just add the options
-            if (!ruleIf || checkCondition(ruleIf, modelCount)) {
+            // Add a check for maximum number of this type of wargear
+            if ((!ruleIf || checkCondition(ruleIf, modelCount)) && checkMax(replace, max, squad)) {
                 availableOptions.push({ replace, options });
             }
         });
         return availableOptions;
     };
+    
+    const checkMax = (replace, max, squad) => {
+        // Check if max is specified in the rule
+        if (max) {
+            // Count how many models have this wargear
+            let count = 0;
+            squad.models.forEach(model => {
+                if (model.wargear && !model.wargear.includes(replace)) {
+                    count++;
+
+                }
+            });
+            // If the count is less than the max, return true
+            if (count < max) {
+                return true;
+            } else {
+                return false;
+            }
+        } else {
+            // If max is not specified, return true
+            return true;
+        }
+    };
+    
+    const handleSelectOption = (option) => {
+        if (wargearToReplace) {
+            const newWargear = model.wargear.map(gear => gear === wargearToReplace ? option : gear);
+            const updatedModel = { ...model, wargear: newWargear };
+            setModel(updatedModel);
+            setWargearToReplace(null);
+        }
+    };
+    
+    const handleConfirm = async () => {
+        // Update the model's currentWargear with the selected wargear
+        if (model && army) { 
+            const updatedModel = { ...model, currentWargear: selectedWargear };
+            
+            // If there's no defaultWargear yet, then set the currentWargear as the default
+            if (!updatedModel.defaultWargear) {
+                updatedModel.defaultWargear = [...model.wargear];
+            }
+
+            // Find the index of the model in the squad
+            const modelIndex = squad.models.findIndex(m => m.id === model.id);
+
+            // Replace the old model with the updated one
+            const updatedModels = [...squad.models];
+            updatedModels[modelIndex] = updatedModel;
+
+            // Update the squad's models
+            const updatedSquad = { ...squad, models: updatedModels };
+
+            // Find the index of the squad in the army's units
+            const squadIndex = army.units.findIndex(unit => unit.id === squad.id);
+
+            // Replace the old squad with the updated one
+            const updatedUnits = [...army.units]; 
+            updatedUnits[squadIndex] = updatedSquad;
+
+            // Update the army's units in Firebase
+            await armyRef.current.update({ 
+                units: updatedUnits
+            });
+        }
+    };
+
+    const handleReset = async () => {
+        if (model && model.wargear && army) {
+          // Use armyId to look up the faction
+          const armySnapshot = await armyRef.current.get();
+          const armyData = armySnapshot.data();
+          console.log("armyData: "+ armyData)
+      
+          const factionRef = db.collection('factions').where('name', '==', armyData.faction);
+          const factionSnapshot = await factionRef.get();
+          console.log("factionSnapshot: "+ factionSnapshot.docs[0].data())
+      
+          let defaultWargear = [];
+          const factionData = factionSnapshot.docs[0].data();
+      
+          if (factionData) {
+            for (let i = 0; i < factionData.models.length; i++) {
+              if (factionData.models[i].name === model.name) {
+                defaultWargear = factionData.models[i].defaultWargear;
+                break;
+              }
+            }
+          }
+      
+          if (defaultWargear.length > 0) {
+            const resetModel = { ...model, wargear: defaultWargear };
+      
+            const modelIndex = squad.models.findIndex(m => m.id === model.id);
+            const resetModels = [...squad.models];
+            resetModels[modelIndex] = resetModel;
+      
+            const resetSquad = { ...squad, models: resetModels };
+      
+            const squadIndex = army.units.findIndex(unit => unit.id === squad.id);
+            const resetUnits = [...army.units];
+            resetUnits[squadIndex] = resetSquad;
+      
+            await armyRef.current.update({
+              units: resetUnits
+            });
+      
+            setModel(resetModel);
+          }
+        }
+      };
+      
+    
+    
 
     const checkCondition = (conditionObj, value) => {
         // If there is no conditionObj, then there's no condition to check.
@@ -167,7 +239,8 @@ const ModelCustomizationScreen = ({ route, navigation }) => {
                     )}
                 </View>
             )}
-            <Button title="Confirm" onPress={handleConfirm} />
+             <Button title="Confirm" onPress={handleConfirm} />
+            {model && model.defaultWargear && <Button title="Reset to default" onPress={handleReset} />}
         </View>
     );
     

@@ -93,19 +93,22 @@ export default async function uploadFactions() {
                                     "for": "Space Marine",
                                     "if": { "condition": "lessThan", "value": 10 },
                                     "options": ["Heavy Bolter", "Plasma Gun"], // add the rest of the Heavy Weapons and Special Weapons lists here
-                                    "replace": "Boltgun"
+                                    "replace": "Boltgun",
+                                    "max": 1
                                 },
                                 {
                                     "for": "Space Marine",
                                     "if": { "condition": "equals", "value": 10 },
                                     "options": ["Heavy Bolter"], // add the rest of the Heavy Weapons list here
-                                    "replace": "Boltgun"
+                                    "replace": "Boltgun",
+                                    "max": 1                               
                                 },
                                 {
                                     "for": "Space Marine",
                                     "if": { "condition": "equals", "value": 10 },
                                     "options": ["Plasma Gun"], // add the rest of the Special Weapons list here
-                                    "replace": "Boltgun"
+                                    "replace": "Boltgun",
+                                    "max": 1                                
                                 }
                             ]
                         },
