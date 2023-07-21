@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 import Settings from './screens/Settings';
@@ -7,20 +7,36 @@ import MainMenu from './screens/MainMenu';
 import Army from './screens/Army';
 import Play from './screens/Play';
 import TestPlay from './screens/TestPlay';
-import CreateArmy from './screens/CreateArmy'; // Import the CreateArmy screen
+import CreateArmy from './screens/CreateArmy';
 import { auth } from './firebase';
+import SquadCustomizationScreen from './screens/SquadCustomizationScreen';
+import ModelCustomizationScreen from './screens/ModelCustomizationScreen';
+import EditArmy from './screens/EditArmy';
 
 const Stack = createStackNavigator();
 
 const App = () => {
   const [user, setUser] = useState(null);
+  const navigationRef = useRef();
 
   useEffect(() => {
     const unsubscribe = auth.onAuthStateChanged((authUser) => {
       if (authUser) {
         setUser(authUser);
+        if (navigationRef.current) {
+          navigationRef.current.reset({
+            index: 0,
+            routes: [{ name: 'MainMenu' }],
+          });
+        }
       } else {
         setUser(null);
+        if (navigationRef.current) {
+          navigationRef.current.reset({
+            index: 0,
+            routes: [{ name: 'Login' }],
+          });
+        }
       }
     });
 
@@ -30,7 +46,7 @@ const App = () => {
   }, []);
 
   return (
-    <NavigationContainer>
+    <NavigationContainer ref={navigationRef}>
       <Stack.Navigator>
         {user ? (
           <>
@@ -40,7 +56,9 @@ const App = () => {
             <Stack.Screen name="Settings" component={Settings} />
             <Stack.Screen name="CreateArmy" component={CreateArmy} />
             <Stack.Screen name="TestPlay" component={TestPlay} />
-
+            <Stack.Screen name="SquadCustomization" component={SquadCustomizationScreen} />
+            <Stack.Screen name="ModelCustomization" component={ModelCustomizationScreen} />
+            <Stack.Screen name="EditArmy" component={EditArmy} />
           </>
         ) : (
           <Stack.Screen name="Login" component={Login} />

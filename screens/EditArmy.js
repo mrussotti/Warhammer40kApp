@@ -1,10 +1,9 @@
-// screens/CreateArmy.js
+// screens/EditArmy.js
 import React, { useState, useEffect } from 'react';
 import { ScrollView, View, Text, TextInput, Button, FlatList, TouchableOpacity, StyleSheet } from 'react-native';
 import { db, auth } from '../firebase';
 
-
-const CreateArmy = ({ navigation }) => {
+const EditArmy = ({ navigation, route }) => {
     const [loading, setLoading] = useState(true);
     const [armyId, setArmyId] = useState(null);
     const [armyRef, setArmyRef] = useState(null);
@@ -15,42 +14,18 @@ const CreateArmy = ({ navigation }) => {
     const [units, setUnits] = useState([]);
     const [factions, setFactions] = useState([]);
     const [armyUnits, setArmyUnits] = useState([]);
+    const [army, setArmy] = useState(null);
 
     useEffect(() => {
-        // Create a new document reference and save the ID
-        const armyRef = db.collection('Armies').doc();
-        setArmyId(armyRef.id);
-        setArmyRef(armyRef);
-    }, []);
-
-    useEffect(() => {
-        const fetchFactions = async () => {
-            try {
-                const snapshot = await db.collection('factions').get();
-                const factionsArray = snapshot.docs.map(doc => {
-                    const faction = doc.data();
-                    return { id: doc.id, ...faction };
-                });
-                // console.log('Factions fetched: '); // Add console.log here
-                setFactions(factionsArray);
-                setFaction(factionsArray[0].name);
-                setLoading(false);
-            } catch (error) {
-                console.error('Error fetching factions:', error);
-            }
-        };
-        fetchFactions();
-    }, []);
-
-    useEffect(() => {
-        if (faction) {
-            const selectedFaction = factions.find(f => f.name === faction);
-            // console.log('Selected faction: ', selectedFaction); // Add console.log here
-            setUnits(selectedFaction.squads);
-            setArmyUnits([]);
-            setUnit(selectedFaction.squads[0].name);
+        if (route.params?.army) {
+            setArmy(route.params.army);
+            setArmyId(route.params.army.id);
+            setName(route.params.army.name);
+            setFaction(route.params.army.faction);
+            setArmyUnits(route.params.army.units);
+            setArmyRef(db.collection('Armies').doc(route.params.army.id));
         }
-    }, [faction]);
+    }, []);
 
 
     useEffect(() => {
@@ -70,37 +45,84 @@ const CreateArmy = ({ navigation }) => {
     }, [armyRef]);
     
 
-const handleSquadPress = (squadID) => {
-    updateArmyData(() => {
-      navigation.navigate('SquadCustomization', {
-        armyId: armyId,
-        squadId: squadID,
-      });
-    });
-}
-
+    useEffect(() => {
+        const fetchFactions = async () => {
+            try {
+                const snapshot = await db.collection('factions').get();
+                const factionsArray = snapshot.docs.map(doc => {
+                    const faction = doc.data();
+                    return { id: doc.id, ...faction };
+                });
+                console.log(factionsArray)
+                setFactions(factionsArray);
+                
+                // Set the first faction if any are fetched
+                if(factionsArray.length > 0) {
+                    setFaction(factionsArray[0].name);
+                }
+    
+                setLoading(false);
+            } catch (error) {
+                console.error('Error fetching factions:', error);
+            }
+        };
+        fetchFactions();
+    }, []);
     
 
-const updateArmyData = (callback) => {
-    // Find the selected faction by id
-    const selectedFaction = factions.find(f => f.name === faction);
+    useEffect(() => {
+        if (faction) {
+            const selectedFaction = factions.find(f => f.name === faction);
+            if (selectedFaction) {
+                setUnits(selectedFaction.squads);
+            } else {
+                setUnits([]);
+            }
+        }
+    }, [faction, factions]);
+    
+    // Add this useEffect hook here
+    useEffect(() => {
+        if (units.length > 0) {
+            setUnit(units[0].name);
+        }
+    }, [units]);
+    
 
-    const armyData = {
-        name,
-        faction: selectedFaction.name, // Use faction name instead of id
-        units: armyUnits.map(unit => ({
-            ...unit,
-            models: unit.models.map(model => ({
-                ...model
-            }))
-        })),
-        userId: auth.currentUser.uid,
+    const handleSquadPress = (squadID) => {
+        updateArmyData(() => {
+            navigation.navigate('SquadCustomization', {
+                armyId: armyId,
+                squadId: squadID,
+            });
+        });
+    }
+
+    const updateArmyData = (callback) => {
+        // Find the selected faction by id
+        const selectedFaction = factions.find(f => f.name === faction);
+
+        // check if selectedFaction is defined
+        if (!selectedFaction) {
+            console.error('Faction not found');
+            return;
+        }
+
+        const armyData = {
+            name,
+            faction: selectedFaction.name, // Use faction name instead of id
+            units: armyUnits.map(unit => ({
+                ...unit,
+                models: unit.models.map(model => ({
+                    ...model
+                }))
+            })),
+            userId: auth.currentUser.uid,
+        };
+
+        // Set the data in the document
+        armyRef.set(armyData).then(callback);
     };
-  
-    // Set the data in the document
-    armyRef.set(armyData).then(callback);
-    console.log("updated")
-};
 
 
 
@@ -125,12 +147,12 @@ const updateArmyData = (callback) => {
 
         let clonedSquad = JSON.parse(JSON.stringify(selectedSquad));
         // Add a unique ID to the squad
-        clonedSquad.id = generateUniqueId(); 
-        console.log(clonedSquad)
- 
+        clonedSquad.id = generateUniqueId();
+        // console.log(clonedSquad)
+
 
         clonedSquad.models.forEach(model => {
-            console.log(model)
+            // console.log(model)
             // Find the corresponding model in the faction's models
             const factionModel = selectedFaction.models.find(m => m.name === model.name);
 
@@ -139,7 +161,7 @@ const updateArmyData = (callback) => {
                 console.error('Model does not exist or does not have defaultWargear');
                 return;
             }
-            model.id= generateUniqueId(); //generate unique id for each model
+            model.id = generateUniqueId(); //generate unique id for each model
         });
         // Add the new squad to the army only if it has at least one model
         if (clonedSquad.models.length > 0) {
@@ -153,13 +175,10 @@ const updateArmyData = (callback) => {
     function generateUniqueId() {
         return Date.now().toString(36) + Math.random().toString(36).substring(2);
     }
-
-
-
     const handleSubmit = () => {
         // Find the selected faction by id
         const selectedFaction = factions.find(f => f.name === faction);
-    
+
         const armyData = {
             name,
             faction: selectedFaction.name, // Use faction name instead of id
@@ -171,17 +190,12 @@ const updateArmyData = (callback) => {
             })),
             userId: auth.currentUser.uid,
         };
-    
+
         // Set the data in the document
         armyRef.set(armyData).then(() => {
             navigation.goBack();
         });
     };
-
-
-    if (loading) {
-        return <Text>Loading...</Text>;
-    }
 
     return (
         <View style={styles.mainContainer}>
@@ -304,4 +318,6 @@ const styles = StyleSheet.create({
     }
 });
 
-export default CreateArmy;
+
+export default EditArmy;
+
