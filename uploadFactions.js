@@ -83,6 +83,7 @@ export default async function uploadFactions() {
                 {
                     "name": "Tactical Squad",
                     "description": "Tactical Squads are the backbone of any Space Marine army. They hold ground; provide fire support; and even attack enemy lines.",
+                    "isDeployed": false,
                     "rules": [
                         {
                             "name": "Space Marine",

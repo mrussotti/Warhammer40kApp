@@ -3,7 +3,7 @@ import { db } from '../firebase';
 
 const useFetchUnitsData = (armyId) => {
     const [isLoading, setIsLoading] = useState(true);
-    const [unitsData, setUnitsData] = useState([]);
+    const [armyData, setArmyData] = useState([]);
     const [error, setError] = useState(null);
 
     useEffect(() => {
@@ -13,8 +13,7 @@ const useFetchUnitsData = (armyId) => {
                 const armyData = armySnapshot.data();
 
                 if(armyData){
-                    const squads = armyData.units;
-                    setUnitsData(squads);
+                    setArmyData(armyData);
                     // console.log(unitsData)
                     setIsLoading(false);
                 }else{
@@ -31,7 +30,7 @@ const useFetchUnitsData = (armyId) => {
     }, [armyId]);
 
 
-    return { isLoading, unitsData, error };
+    return { isLoading, armyData, error };
 };
 
 export default useFetchUnitsData;
