@@ -64,7 +64,7 @@ const Game = ({ armyId, playAreaWidth, playAreaHeight }) => {
 
 
     const nextPhase = () => {
-        if (phase === 0 && squadsToDeploy.length === 0) {
+        if (phase === 0) {
             console.log("happened")
             setCurrentArmyData(armyData)
             setPlayer(player);
@@ -153,7 +153,6 @@ const Game = ({ armyId, playAreaWidth, playAreaHeight }) => {
     const handleDeploymentCellPress = (x, y) => {
 
         const unitToDeployIndex = currentArmyData.units.findIndex(unit => !unit.isDeployed);
-        console.log("index deploy", unitToDeployIndex)
     
         if (unitToDeployIndex !== -1) {
             const unitToDeploy = currentArmyData.units[unitToDeployIndex];
@@ -182,22 +181,18 @@ const Game = ({ armyId, playAreaWidth, playAreaHeight }) => {
                     x: x - unitToDeploy.models[0].gameData.size / 2,
                     y: y - unitToDeploy.models[0].gameData.size / 2,
                     player: players[player],
+                    isDeployed: true,
+                    moved: false,
                 };
-    
     
                 // Deploy unit by updating the armyData array
                 const newArmyData = { ...currentArmyData };  // Clone the armyData object
-                newArmyData.units[unitToDeployIndex] = {
-                    ...newArmyData.units[unitToDeployIndex],
-                    isDeployed: true
-                };
-    
+                newArmyData.units[unitToDeployIndex] = deployedUnit;
     
                 setCurrentArmyData(newArmyData);
     
                 // Update squads state
                 setDeployedSquads(prevSquads => [...prevSquads, deployedUnit]);
-    
     
             } else {
                 console.log('Unit deployment position is outside the game area');
@@ -209,10 +204,11 @@ const Game = ({ armyId, playAreaWidth, playAreaHeight }) => {
     };
     
 
+
     useEffect(() => {
         console.log(deployedSquads);
     }, [deployedSquads]);
-    
+
 
 
     const handleShooting = (shootingInstruction, targetUnit) => {
@@ -273,48 +269,73 @@ const Game = ({ armyId, playAreaWidth, playAreaHeight }) => {
     }
 
     const handleMoveUnit = (newPosition, unit) => {
-        const maxMovementDistance = parseInt(unit.gameData.movement) * 100;
-
-        // Calculate the Euclidean distance between the unit's current position and the new position
-        const distance = calculateDistance(unit.position, newPosition);
-
-        // Check if the unit has already moved this turn
-        if (movedSquads.includes(unit.id)) {
-            console.log('Unit has already moved this turn');
-            return;
-        }
-
-        // Check if the move is within the unit's movement range
-        if (distance <= maxMovementDistance) {
-            // Check if the new position overlaps with an existing unit
-            // And if the new position is within the game area
-            if (!deployedSquads.find(u => calculateDistance(u.position, newPosition) < unit.gameData.size) &&
-                newPosition.x - unit.gameData.size / 2 >= 0 &&
-                newPosition.y - unit.gameData.size / 2 >= 0 &&
-                newPosition.x + unit.gameData.size / 2 <= playAreaWidth &&
-                newPosition.y + unit.gameData.size / 2 <= playAreaHeight) {
-                // Update the position of the unit in the units state
-                setDeployedSquads(deployedSquads.map(u => {
-                    if (u.id === unit.id) {
-                        return {
-                            ...u,
-                            position: newPosition,
-                            x: newPosition.x - u.gameData.size / 2,
-                            y: newPosition.y - u.gameData.size / 2,
-                        };
-                    } else {
-                        return u;
-                    }
-                }));
-                // Add the unit to the list of moved units
-                setMovedSquads([...movedSquads, unit.id]);
-            } else {
-                console.log('Move is blocked or outside the game area');
+        // Iterate over every model in the unit
+        for (let i = 0; i < unit.models.length; i++) {
+            const model = unit.models[i];
+    
+            const maxMovementDistance = parseInt(model.gameData.movement) * 100;
+    
+            // Construct the model's current position
+            const currentPosition = { x: model.gameData.x, y: model.gameData.y };
+    
+            // Calculate the Euclidean distance between the model's current position and the new position
+            const distance = calculateDistance(currentPosition, newPosition);
+    
+            // Check if the unit has already moved this turn
+            if (unit.moved) {
+                console.log("This unit has already moved this turn.");
+                return;  // return early if the unit has already moved
             }
-        } else {
-            console.log('Move exceeds unit movement range');
+    
+            // Check if the move is within the model's movement range
+            if (distance <= maxMovementDistance) {
+                // Update the position of each model in the unit and set the 'moved' flag to true
+                setDeployedSquads(prevSquads => {
+                    return prevSquads.map(squad => {
+                        if (squad.id === unit.id) {
+                            return {
+                                ...squad,
+                                models: squad.models.map(m => {
+                                    if (m.id === model.id) {
+                                        return {
+                                            ...m,
+                                            gameData: {
+                                                ...m.gameData,
+                                                // Add the difference between the new and old unit positions to each model's position
+                                                x: m.gameData.x + newPosition.x - unit.position.x,
+                                                y: m.gameData.y + newPosition.y - unit.position.y,
+                                            },
+                                        };
+                                    } else {
+                                        return m;
+                                    }
+                                }),
+                                moved: true,
+                                // Update the unit's position
+                                position: newPosition,
+                            };
+                        } else {
+                            return squad;
+                        }
+                    });
+                });
+    
+                // Update currentArmyData based on the new deployedSquads
+                setCurrentArmyData(prevArmyData => {
+                    return {
+                        ...prevArmyData,
+                        units: deployedSquads
+                    };
+                });
+            } else {
+                console.log('Move exceeds model movement range');
+            }
         }
     };
+    
+    
+
+
 
     const convertScreenToWorld = (screenX, screenY, screenWidth, screenHeight, playAreaWidth, playAreaHeight) => {
         const worldX = (screenX / screenWidth) * playAreaWidth;
@@ -336,7 +357,7 @@ const Game = ({ armyId, playAreaWidth, playAreaHeight }) => {
             {
             console.log(deployedSquads)
             } */}
-            
+
             <PlayArea
                 width={playAreaWidth}
                 height={playAreaHeight}

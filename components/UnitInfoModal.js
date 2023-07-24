@@ -26,17 +26,11 @@ const UnitInfoModal = ({ visible, unit, onClose, phase, onMoveUnit, onShootUnit,
                 <View style={styles.modalView}>
                     {unit && (
                         <>
+                            <Text style={styles.modalText}>Squad Name: {unit.name}</Text>
 
-                            <Text style={styles.modalText}>Name: {unit.name}</Text>
-                            <Text style={styles.modalText}>Movement: {unit.gameData.movement}</Text>
-                            <Text style={styles.modalText}>Weapon Skill: {unit.gameData.weaponSkill}</Text>
-                            <Text style={styles.modalText}>Ballistic Skill: {unit.gameData.ballisticSkill}</Text>
-                            <Text style={styles.modalText}>Strength: {unit.gameData.strength}</Text>
-                            <Text style={styles.modalText}>Toughness: {unit.gameData.toughness}</Text>
-                            <Text style={styles.modalText}>Wounds: {unit.gameData.wounds}</Text>
-                            <Text style={styles.modalText}>Attacks: {unit.gameData.attacks}</Text>
-                            <Text style={styles.modalText}>Leadership: {unit.gameData.leadership}</Text>
-                            <Text style={styles.modalText}>Save: {unit.gameData.save}</Text>
+                            {unit.models.map((model, index) => (
+                                <Text key={index} style={styles.modalText}>Model {index + 1}: {model.name}</Text>
+                            ))}
                             {/* <TouchableOpacity
                                 style={styles.detailsButton}
                                 onPress={() => showMoreDetails(unit)}     DONT NEED THIS YET
