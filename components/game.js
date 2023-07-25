@@ -151,25 +151,40 @@ const Game = ({ armyId, playAreaWidth, playAreaHeight }) => {
     };
 
     const handleDeploymentCellPress = (x, y) => {
-
         const unitToDeployIndex = currentArmyData.units.findIndex(unit => !unit.isDeployed);
     
         if (unitToDeployIndex !== -1) {
             const unitToDeploy = currentArmyData.units[unitToDeployIndex];
-            // Check if deployment position is within game area
-            if (x - unitToDeploy.models[0].gameData.size / 2 >= 0 &&
-                y - unitToDeploy.models[0].gameData.size / 2 >= 0 &&
-                x + unitToDeploy.models[0].gameData.size / 2 <= playAreaWidth &&
-                y + unitToDeploy.models[0].gameData.size / 2 <= playAreaHeight) {
+            const modelSize = unitToDeploy.models[0].gameData.size;
+    
+            // Calculate rows and columns
+            const rows = Math.ceil(unitToDeploy.models.length / 5);
+            const columns = Math.min(unitToDeploy.models.length, 5);
+    
+            // Calculate the offset of the first model
+            const offsetX = x - ((columns * modelSize) / 2);
+            const offsetY = y;
+    
+            // Define unit boundary
+            const unitBoundaryX = offsetX + (modelSize * (columns - 1));
+            const unitBoundaryY = offsetY + (modelSize * (rows - 1));
+    
+            // Check if deployment position + unit boundary is within game area, while considering the size of the model and the buffer
+            if (offsetX >= 5 && unitBoundaryX + modelSize + 10 <= playAreaWidth &&
+                offsetY >= 5 && unitBoundaryY + modelSize + 5 <= playAreaHeight) {
     
                 // Adding x, y coordinates to each model in the unit
                 const updatedModels = unitToDeploy.models.map((model, index) => {
+                    // Calculate row and column for model, assuming a max of 5 models per row
+                    const row = Math.floor(index / 5);
+                    const col = index % 5;
+    
                     return {
                         ...model,
                         gameData: {
                             ...model.gameData,
-                            x: x + index * model.gameData.size,  // assigning coordinates based on model index
-                            y: y + index * model.gameData.size,
+                            x: offsetX + col * modelSize,  // assign x-coordinate based on model's column
+                            y: offsetY + row * modelSize,  // assign y-coordinate based on model's row
                         },
                     };
                 });
@@ -178,8 +193,6 @@ const Game = ({ armyId, playAreaWidth, playAreaHeight }) => {
                     ...unitToDeploy,
                     models: updatedModels,  // updating models with the new coordinates
                     position: { x, y },
-                    x: x - unitToDeploy.models[0].gameData.size / 2,
-                    y: y - unitToDeploy.models[0].gameData.size / 2,
                     player: players[player],
                     isDeployed: true,
                     moved: false,
@@ -193,7 +206,6 @@ const Game = ({ armyId, playAreaWidth, playAreaHeight }) => {
     
                 // Update squads state
                 setDeployedSquads(prevSquads => [...prevSquads, deployedUnit]);
-    
             } else {
                 console.log('Unit deployment position is outside the game area');
             }
@@ -203,13 +215,8 @@ const Game = ({ armyId, playAreaWidth, playAreaHeight }) => {
         }
     };
     
-
-
-    useEffect(() => {
-        console.log(deployedSquads);
-    }, [deployedSquads]);
-
-
+    
+    
 
     const handleShooting = (shootingInstruction, targetUnit) => {
         if (!targetUnit || !shootingInstruction || !shootingInstruction.selectedWeapon || !shootingInstruction.selectedWeapon.range) {
@@ -289,6 +296,21 @@ const Game = ({ armyId, playAreaWidth, playAreaHeight }) => {
     
             // Check if the move is within the model's movement range
             if (distance <= maxMovementDistance) {
+    
+                const proposedModelsPositions = unit.models.map(m => {
+                    const proposedPosition = {
+                        x: m.gameData.x + newPosition.x - unit.position.x,
+                        y: m.gameData.y + newPosition.y - unit.position.y
+                    };
+                    return proposedPosition;
+                });
+    
+                // Check if any proposed position is outside the play area
+                if (proposedModelsPositions.some(pos => pos.x - model.gameData.size < 0 || pos.y - model.gameData.size < 0 || pos.x + model.gameData.size  > playAreaWidth || pos.y + model.gameData.size  > playAreaHeight)) {
+                    console.log('Move would result in model being outside the play area');
+                    return;
+                }
+    
                 // Update the position of each model in the unit and set the 'moved' flag to true
                 setDeployedSquads(prevSquads => {
                     return prevSquads.map(squad => {
@@ -332,6 +354,8 @@ const Game = ({ armyId, playAreaWidth, playAreaHeight }) => {
             }
         }
     };
+    
+    
     
     
 
