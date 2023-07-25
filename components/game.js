@@ -65,7 +65,7 @@ const Game = ({ armyId, playAreaWidth, playAreaHeight }) => {
 
     const nextPhase = () => {
         if (phase === 0) {
-            console.log("happened")
+            console.log("deploymentPhase")
             setCurrentArmyData(armyData)
             setPlayer(player);
             setSquadToDeploy(currentArmyData);
@@ -84,35 +84,29 @@ const Game = ({ armyId, playAreaWidth, playAreaHeight }) => {
         }
     };
 
-
-
     const handleScreenPress = (screenX, screenY) => {
-        console.log("pressed")
-
+        console.log("pressed");
+      
         const [x, y] = convertScreenToWorld(screenX, screenY, screenWidth, screenHeight, playAreaWidth, playAreaHeight);
-
+      
         const squadData = deployedSquads.find(unit => {
-            const unitCenterX = unit.x + unit.models[0].gameData.size / 2;
-            const unitCenterY = unit.y + unit.models[0].gameData.size / 2;
-
-            // calculate square of distance from the center of the unit to the click
-            const distanceSquared = Math.pow(unitCenterX - x, 2) + Math.pow(unitCenterY - y, 2);
-
-            // define the increased radius squared directly
-            const increasedUnitRadiusSquared = Math.pow(unit.models[0].gameData.size, 2);
-
-            // Check the square of the distance against the square of the increased radius
-            return distanceSquared < increasedUnitRadiusSquared;
-        });
-
-
-
-
-        if (squadData) {
-            console.log('squad Selected:', squadData);
-            console.log(squadData.player);
-
-        }
+            // Define unit boundary, considering the size of the model
+            const modelSize = unit.models[0].gameData.size;
+            const rows = Math.ceil(unit.models.length / 5);
+            const columns = Math.min(unit.models.length, 5);
+            // Define the boundaries
+            const boundaryX1 = unit.position.x - modelSize * 2.5;
+            const boundaryX2 = unit.position.x + modelSize * 2.5;
+            const boundaryY1 = unit.position.y - modelSize * rows;
+            const boundaryY2 = unit.position.y + modelSize * rows;
+      
+            // Check if the click is within the boundaries
+            return x >= boundaryX1 && x <= boundaryX2 && y >= boundaryY1 && y <= boundaryY2;
+        });   
+        // if (squadData) {
+        //     console.log('squad Selected:', squadData);
+        //     console.log(squadData.player);
+        // }
 
         switch (phases[phase]) {
             case 'Deployment':
@@ -129,6 +123,7 @@ const Game = ({ armyId, playAreaWidth, playAreaHeight }) => {
                         setMoveInstruction(null);  // Clear the move instruction
                     } else {
                         console.log('Cannot move opponent unit');
+                        alert('Cannot move opponent unit');
                     }
                 } else if (squadData && squadData.player === players[player]) {
                     setSelectedUnit({ ...squadData, position: { x, y } });  // Use data from the unit
@@ -163,7 +158,7 @@ const Game = ({ armyId, playAreaWidth, playAreaHeight }) => {
     
             // Calculate the offset of the first model
             const offsetX = x - ((columns * modelSize) / 2);
-            const offsetY = y;
+            const offsetY = y - ((rows * modelSize) / 2); 
     
             // Define unit boundary
             const unitBoundaryX = offsetX + (modelSize * (columns - 1));
@@ -192,7 +187,8 @@ const Game = ({ armyId, playAreaWidth, playAreaHeight }) => {
                 const deployedUnit = {
                     ...unitToDeploy,
                     models: updatedModels,  // updating models with the new coordinates
-                    position: { x, y },
+                    // set the center of the squad as the unit's position
+                    position: { x: offsetX + (columns * modelSize) / 2, y: offsetY + (rows * modelSize) / 2 }, 
                     player: players[player],
                     isDeployed: true,
                     moved: false,
@@ -208,12 +204,15 @@ const Game = ({ armyId, playAreaWidth, playAreaHeight }) => {
                 setDeployedSquads(prevSquads => [...prevSquads, deployedUnit]);
             } else {
                 console.log('Unit deployment position is outside the game area');
+                alert('Unit deployment position is outside the game area');
             }
         } else {
             // If no units are left to deploy, send an alert to the phone
             alert('No more units to deploy');
         }
     };
+    
+    
     
     
     
@@ -275,85 +274,89 @@ const Game = ({ armyId, playAreaWidth, playAreaHeight }) => {
         return Math.sqrt(Math.pow(point2.x - point1.x, 2) + Math.pow(point2.y - point1.y, 2));
     }
 
-    const handleMoveUnit = (newPosition, unit) => {
-        // Iterate over every model in the unit
-        for (let i = 0; i < unit.models.length; i++) {
-            const model = unit.models[i];
-    
-            const maxMovementDistance = parseInt(model.gameData.movement) * 100;
-    
-            // Construct the model's current position
-            const currentPosition = { x: model.gameData.x, y: model.gameData.y };
-    
-            // Calculate the Euclidean distance between the model's current position and the new position
-            const distance = calculateDistance(currentPosition, newPosition);
-    
-            // Check if the unit has already moved this turn
-            if (unit.moved) {
-                console.log("This unit has already moved this turn.");
-                return;  // return early if the unit has already moved
-            }
-    
-            // Check if the move is within the model's movement range
-            if (distance <= maxMovementDistance) {
-    
-                const proposedModelsPositions = unit.models.map(m => {
-                    const proposedPosition = {
-                        x: m.gameData.x + newPosition.x - unit.position.x,
-                        y: m.gameData.y + newPosition.y - unit.position.y
-                    };
-                    return proposedPosition;
-                });
-    
-                // Check if any proposed position is outside the play area
-                if (proposedModelsPositions.some(pos => pos.x - model.gameData.size < 0 || pos.y - model.gameData.size < 0 || pos.x + model.gameData.size  > playAreaWidth || pos.y + model.gameData.size  > playAreaHeight)) {
-                    console.log('Move would result in model being outside the play area');
-                    return;
-                }
-    
-                // Update the position of each model in the unit and set the 'moved' flag to true
-                setDeployedSquads(prevSquads => {
-                    return prevSquads.map(squad => {
-                        if (squad.id === unit.id) {
-                            return {
-                                ...squad,
-                                models: squad.models.map(m => {
-                                    if (m.id === model.id) {
-                                        return {
-                                            ...m,
-                                            gameData: {
-                                                ...m.gameData,
-                                                // Add the difference between the new and old unit positions to each model's position
-                                                x: m.gameData.x + newPosition.x - unit.position.x,
-                                                y: m.gameData.y + newPosition.y - unit.position.y,
-                                            },
-                                        };
-                                    } else {
-                                        return m;
-                                    }
-                                }),
-                                moved: true,
-                                // Update the unit's position
-                                position: newPosition,
-                            };
-                        } else {
-                            return squad;
-                        }
-                    });
-                });
-    
-                // Update currentArmyData based on the new deployedSquads
-                setCurrentArmyData(prevArmyData => {
-                    return {
-                        ...prevArmyData,
-                        units: deployedSquads
-                    };
-                });
-            } else {
-                console.log('Move exceeds model movement range');
-            }
+  const handleMoveUnit = (newPosition, unit) => {
+    // Iterate over every model in the unit
+    for (let i = 0; i < unit.models.length; i++) {
+        const model = unit.models[i];
+
+        const maxMovementDistance = parseInt(model.gameData.movement) * 100;
+
+        // Construct the model's current position
+        const currentPosition = { x: model.gameData.x, y: model.gameData.y };
+
+        // Calculate the Euclidean distance between the model's current position and the new position
+        const distance = calculateDistance(currentPosition, newPosition);
+
+        // Check if the unit has already moved this turn
+        if (unit.moved) {
+            console.log("This unit has already moved this turn.");
+            return;  // return early if the unit has already moved
         }
-    };
+
+        // Check if the move is within the model's movement range
+        if (distance <= maxMovementDistance) {
+
+            const proposedModelsPositions = unit.models.map(m => {
+                const proposedPosition = {
+                    x: m.gameData.x + newPosition.x - unit.position.x,
+                    y: m.gameData.y + newPosition.y - unit.position.y
+                };
+                return proposedPosition;
+            });
+
+            // Check if any proposed position is outside the play area
+            if (proposedModelsPositions.some(pos => pos.x - model.gameData.size < 0 || pos.y - model.gameData.size < 0 || pos.x + model.gameData.size  + 10> playAreaWidth || pos.y + model.gameData.size  > playAreaHeight)) {
+                console.log('Move would result in model being outside the play area');
+                alert('Move would result in model being outside the play area');
+                return;
+            }
+
+            // Update the position of each model in the unit and set the 'moved' flag to true
+            setDeployedSquads(prevSquads => {
+                return prevSquads.map(squad => {
+                    if (squad.id === unit.id) {
+                        return {
+                            ...squad,
+                            models: squad.models.map(m => {
+                                if (m.id === model.id) {
+                                    return {
+                                        ...m,
+                                        gameData: {
+                                            ...m.gameData,
+                                            // Add the difference between the new and old unit positions to each model's position
+                                            x: m.gameData.x + newPosition.x - unit.position.x,
+                                            y: m.gameData.y + newPosition.y - unit.position.y,
+                                        },
+                                    };
+                                } else {
+                                    return m;
+                                }
+                            }),
+                            moved: true,
+                            // Update the unit's position
+                            position: newPosition,
+                        };
+                    } else {
+                        return squad;
+                    }
+                });
+            });
+
+            // Update currentArmyData based on the new deployedSquads
+            setCurrentArmyData(prevArmyData => {
+                return {
+                    ...prevArmyData,
+                    units: deployedSquads
+                };
+            });
+        } else {
+            console.log('Move exceeds model movement range');
+            alert('Move exceeds model movement range');
+        }
+    }
+};
+
+
     
     
     
