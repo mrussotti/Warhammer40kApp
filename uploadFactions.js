@@ -41,7 +41,25 @@ export default async function uploadFactions() {
                         "size": 25,
                     },
                     "defaultWargear": ["Bolt Pistol", "Boltgun", "Frag Grenades", "Krak Grenades"]
+                },
+                {
+                    "name": "Rhino",
+                    "gameData": {
+                        "points": 70,
+                        "movement": "12\"",
+                        "weaponSkill": 6,
+                        "ballisticSkill": 3,
+                        "strength": 6,
+                        "toughness": 7,
+                        "wounds": 10,
+                        "attacks": 3,
+                        "leadership": 8,
+                        "save": "3+",
+                        "size": 100,
+                    },
+                    "defaultWargear": ["Storm Bolter", "Smoke Launchers"]
                 }
+                
                 // other models...
             ],
             "wargear": [
@@ -76,7 +94,22 @@ export default async function uploadFactions() {
                     "strength": 6,
                     "armorPenetration": -1,
                     "damage": "D3"
+                },
+                {
+                    "name": "Storm Bolter",
+                    "range": "24\"",
+                    "type": "Rapid Fire 2",
+                    "strength": 4,
+                    "armorPenetration": 0,
+                    "damage": 1
+                },
+                {
+                    "name": "Smoke Launchers",
+                    "range": "-",
+                    "type": "Ability",
+                    "effect": "Once per game, instead of shooting any weapons in the Shooting phase, this model can use its Smoke Launchers. Until your next Shooting phase, your opponent must subtract 1 from all hit rolls for ranged weapons that target this model."
                 }
+                
                 // other wargear...
             ],
             "squads": [
@@ -220,7 +253,53 @@ export default async function uploadFactions() {
 
                     ],
                     "abilities": ["Angels of Death", "Combat Squads"]
+                },
+                {
+                    "name": "Rhino Squad",
+                    "description": "A Rhino Squad includes a Rhino transport vehicle along with a tactical Space Marine Squad.",
+                    "isDeployed": false,
+                    "rules": [
+                        {
+                            "name": "Rhino",
+                            "min": 1,
+                            "max": 1,
+                            "wargearOptions": [
+                                {
+                                    "for": "Rhino",
+                                    "add": ["Hunter-Killer Missile"],
+                                    "max": 1
+                                },
+                                {
+                                    "for": "Rhino",
+                                    "options": ["Storm Bolter"],
+                                    "max": 2
+                                }
+                            ]
+                        },
+                    ],
+                    "models": [
+                        {
+                            "name": "Rhino",
+                            "gameData": {
+                                "points": 70,
+                                "movement": "12\"",
+                                "weaponSkill": 6,
+                                "ballisticSkill": 3,
+                                "strength": 6,
+                                "toughness": 7,
+                                "wounds": 10,
+                                "attacks": 3,
+                                "leadership": 8,
+                                "save": "3+",
+                                "size": 100,
+                            },
+                            "wargear": ["Storm Bolter", "Smoke Launchers"]
+                        },
+                        // add other models details here
+                    ],
+                    "abilities": ["Angels of Death", "Explodes"]
                 }
+                
                 // other squads...
             ]
         },
