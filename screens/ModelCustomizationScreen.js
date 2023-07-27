@@ -298,8 +298,6 @@ const ModelCustomizationScreen = ({ route, navigation }) => {
                                     <Text style={styles.addIconText}>+</Text>
                                 </TouchableOpacity>
                             }
-
-
                         </View>
                     ))}
                     {wargearToReplace && (
@@ -323,43 +321,72 @@ const ModelCustomizationScreen = ({ route, navigation }) => {
             {model && model.defaultWargear && <Button title="Reset to default" onPress={handleReset} />}
         </View>
     );
-
 };
-
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        justifyContent: 'center',
-        alignItems: 'center',
+        padding: 20,
+        backgroundColor: '#f2f2f2',
     },
     title: {
         fontSize: 24,
         fontWeight: 'bold',
         marginBottom: 20,
+        color: '#333',
+        textAlign: 'center',
     },
     modelInfo: {
         fontSize: 18,
         marginBottom: 10,
+        color: '#666',
+        backgroundColor: '#ddd',
+        padding: 10,
+        borderRadius: 5,
     },
     option: {
         fontSize: 16,
         marginBottom: 5,
+        color: '#555',
     },
     selectedOption: {
         fontSize: 16,
         marginBottom: 5,
-        color: 'blue',
+        color: '#007AFF',
+        fontWeight: 'bold',
     },
     subtitle: {
         fontSize: 20,
         fontWeight: 'bold',
         marginTop: 20,
         marginBottom: 10,
+        color: '#222',
     },
-    currentWargear: {
+    wargearContainer: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        backgroundColor: '#e8e8e8',
+        padding: 10,
+        borderRadius: 5,
+        marginBottom: 10,
+    },
+    wargear: {
         fontSize: 16,
-        marginBottom: 5,
+        color: '#222',
+    },
+    addIcon: {
+        backgroundColor: '#007AFF',
+        borderRadius: 50,
+        width: 30,
+        height: 30,
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    addIconText: {
+        color: '#fff',
+        fontSize: 20,
     },
 });
+
 
 export default ModelCustomizationScreen;

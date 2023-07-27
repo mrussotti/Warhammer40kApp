@@ -29,7 +29,7 @@ const EditArmy = ({ navigation, route }) => {
 
 
     useEffect(() => {
-        if(armyRef) {
+        if (armyRef) {
             const unsubscribe = armyRef.onSnapshot((doc) => {
                 const data = doc.data();
                 if (data) {
@@ -38,12 +38,12 @@ const EditArmy = ({ navigation, route }) => {
                     setArmyUnits(data.units);
                 }
             });
-    
+
             // Clean up the subscription on unmount
             return () => unsubscribe();
         }
     }, [armyRef]);
-    
+
 
     useEffect(() => {
         const fetchFactions = async () => {
@@ -55,12 +55,12 @@ const EditArmy = ({ navigation, route }) => {
                 });
                 console.log(factionsArray)
                 setFactions(factionsArray);
-                
+
                 // Set the first faction if any are fetched
-                if(factionsArray.length > 0) {
+                if (factionsArray.length > 0) {
                     setFaction(factionsArray[0].name);
                 }
-    
+
                 setLoading(false);
             } catch (error) {
                 console.error('Error fetching factions:', error);
@@ -68,7 +68,7 @@ const EditArmy = ({ navigation, route }) => {
         };
         fetchFactions();
     }, []);
-    
+
 
     useEffect(() => {
         if (faction) {
@@ -80,14 +80,14 @@ const EditArmy = ({ navigation, route }) => {
             }
         }
     }, [faction, factions]);
-    
+
     // Add this useEffect hook here
     useEffect(() => {
         if (units.length > 0) {
             setUnit(units[0].name);
         }
     }, [units]);
-    
+
 
     const handleSquadPress = (squadID) => {
         updateArmyData(() => {
@@ -203,22 +203,10 @@ const EditArmy = ({ navigation, route }) => {
                 <Text style={styles.label}>Name</Text>
                 <TextInput style={styles.input} value={name} onChangeText={setName} />
             </View>
-
+    
             <Text style={styles.label}>Faction</Text>
-            <View style={styles.radioContainer}>
-                {factions.map((f, index) => (
-                    <View key={index} style={styles.radioButton}>
-                        <TouchableOpacity
-                            style={styles.circle}
-                            onPress={() => setFaction(f.name)}
-                        >
-                            {faction === f.name && <View style={styles.checkedCircle} />}
-                        </TouchableOpacity>
-                        <Text style={styles.radioText}>{f.name}</Text>
-                    </View>
-                ))}
-            </View>
-
+            <Text style={styles.radioText}>{faction}</Text>
+    
             <Text style={styles.label}>Units</Text>
             <View style={styles.radioContainer}>
                 {units.map((u, index) => (
@@ -233,8 +221,8 @@ const EditArmy = ({ navigation, route }) => {
                     </View>
                 ))}
             </View>
-
-
+    
+    
             <Button title="Add Squad" onPress={handleAddSquad} disabled={!faction || !unit} />
             <FlatList
                 data={armyUnits}
@@ -255,69 +243,89 @@ const EditArmy = ({ navigation, route }) => {
                 keyExtractor={(item, index) => index.toString()}
                 ListFooterComponent={<Button title="Submit" onPress={handleSubmit} />}
             />
-
-
+    
+    
             <Button title="Update Army" onPress={() => updateArmyData(() => { })} />
-
+    
         </View>
     );
-};
-
-const styles = StyleSheet.create({
-    mainContainer: {
-        flex: 1,
-        padding: 15,
-        backgroundColor: '#f5f5f5',
-    },
-    inputContainer: {
-        marginBottom: 15,
-    },
-    label: {
-        fontSize: 16,
-        marginBottom: 5,
-    },
-    input: {
-        height: 40,
-        borderColor: '#000',
-        borderWidth: 1,
-        borderRadius: 5,
-        paddingLeft: 10,
-        backgroundColor: '#fff',
-    },
-    radioContainer: {
-        marginBottom: 15,
-        alignItems: 'flex-start',
-    },
-    radioButton: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        marginBottom: 5,
-    },
-    circle: {
-        height: 20,
-        width: 20,
-        borderRadius: 10,
-        borderWidth: 1,
-        borderColor: '#000',
-        alignItems: 'center',
-        justifyContent: 'center',
-        marginRight: 15,
-    },
-    checkedCircle: {
-        width: 14,
-        height: 14,
-        borderRadius: 7,
-        backgroundColor: '#000',
-    },
-    radioText: {
-        fontSize: 16,
-    },
-    unitText: {
-        fontSize: 16,
-        marginBottom: 5,
-    }
-});
-
+            };
+    const styles = StyleSheet.create({
+        mainContainer: {
+            flex: 1,
+            padding: 15,
+            backgroundColor: '#2b2b2b',
+        },
+        inputContainer: {
+            marginBottom: 15,
+        },
+        label: {
+            fontSize: 20,
+            fontWeight: 'bold',
+            marginBottom: 10,
+            color: '#f5d742',
+        },
+        input: {
+            height: 50,
+            borderColor: '#f5d742',
+            borderWidth: 2,
+            borderRadius: 10,
+            paddingLeft: 15,
+            backgroundColor: '#4d4d4d',
+            color: '#f5d742',
+            fontSize: 18,
+        },
+        radioContainer: {
+            marginBottom: 15,
+            alignItems: 'flex-start',
+        },
+        radioButton: {
+            flexDirection: 'row',
+            alignItems: 'center',
+            marginBottom: 15,
+        },
+        circle: {
+            height: 25,
+            width: 25,
+            borderRadius: 12.5,
+            borderWidth: 2,
+            borderColor: '#f5d742',
+            alignItems: 'center',
+            justifyContent: 'center',
+            marginRight: 20,
+        },
+        checkedCircle: {
+            width: 18,
+            height: 18,
+            borderRadius: 9,
+            backgroundColor: '#f5d742',
+        },
+        radioText: {
+            fontSize: 18,
+            color: '#f5d742',
+        },
+        unitContainer: {
+            borderColor: '#f5d742',
+            borderWidth: 2,
+            borderRadius: 10,
+            padding: 10,
+            marginBottom: 15,
+        },
+        unitText: {
+            fontSize: 18,
+            fontWeight: 'bold',
+            color: '#f5d742',
+            marginBottom: 10,
+        },
+        modelsContainer: {
+            paddingLeft: 20,
+        },
+        modelText: {
+            fontSize: 16,
+            color: '#f5d742',
+        },
+    });
+    
 
 export default EditArmy;
 

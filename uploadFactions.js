@@ -303,9 +303,304 @@ export default async function uploadFactions() {
                 // other squads...
             ]
         },
-        // Add more factions here
-    ];
-    
+        {
+                "name": "Orks",
+                "description": "The Orks are a savage and warlike race, known for their love of battle and destruction.",
+                "models": [
+                    {
+                        "name": "Ork Boy",
+                        "gameData": {
+                            "points": 8,
+                            "movement": "5\"",
+                            "weaponSkill": "3+",
+                            "ballisticSkill": "5+",
+                            "strength": 4,
+                            "toughness": 5,
+                            "wounds": 1,
+                            "attacks": 2,
+                            "leadership": 6,
+                            "save": "6+",
+                            "size": 32
+                        },
+                        "defaultWargear": ["Slugga", "Choppa", "Stikkbombs"]
+                    },
+                    {
+                        "name": "Boss Nob",
+                        "gameData": {
+                            "points": 8,
+                            "movement": "5\"",
+                            "weaponSkill": "3+",
+                            "ballisticSkill": "5+",
+                            "strength": 5,
+                            "toughness": 5,
+                            "wounds": 2,
+                            "attacks": 3,
+                            "leadership": 7,
+                            "save": "6+",
+                            "size": 32
+                        },
+                        "defaultWargear": ["Slugga", "Choppa", "Stikkbombs"]
+                    },
+                    // Add other Ork models here...
+                ],
+                "wargear": [
+                    {
+                        "name": "Slugga",
+                        "range": "12\"",
+                        "type": "Pistol 1",
+                        "strength": 4,
+                        "armorPenetration": 0,
+                        "damage": 1
+                    },
+                    {
+                        "name": "Choppa",
+                        "range": "Melee",
+                        "type": "Melee",
+                        "strength": "User",
+                        "armorPenetration": -1,
+                        "damage": 1
+                    },
+                    {
+                        "name": "Stikkbombs",
+                        "range": "8\"",
+                        "type": "Grenade D6",
+                        "strength": 3,
+                        "armorPenetration": 0,
+                        "damage": 1,
+                        "abilities": ["Blast"]
+                    },
+                    {
+                        "name": "Big Shoota",
+                        "range": "36\"",
+                        "type": "Dakka 5/3",
+                        "strength": 5,
+                        "armorPenetration": 0,
+                        "damage": 1
+                    },
+                    // Add other Ork wargear here...
+                ],
+                "squads": [
+                    {
+                        "name": "Ork Boyz Squad",
+                        "description": "Ork Boyz are the foot soldiers of the Ork horde, armed with crude but deadly weapons.",
+                        "isDeployed": false,
+                        "rules": [
+                            {
+                                "name": "Ork Boy",
+                                "min": 9,
+                                "max": 29,
+                                "wargearOptions": [
+                                    {
+                                        "for": "Ork Boy",
+                                        "options": ["Shoota"],
+                                        "replace": "Slugga"
+                                    },
+                                    {
+                                        "for": "Ork Boy",
+                                        "if": { "condition": "divisibleBy", "value": 10 },
+                                        "options": ["Big Shoota", "Rokkit Launcha"],
+                                        "replace": "Choppa"
+                                    }
+                                ]
+                            },
+                            {
+                                "name": "Boss Nob",
+                                "min": 1,
+                                "max": 1,
+                                "wargearOptions": [
+                                    {
+                                        "for": "Boss Nob",
+                                        "options": ["Big Choppa", "Choppa", "Killsaw", "Power Klaw", "Power Stabba", "Slugga"],
+                                        "replace": "Choppa"
+                                    },
+                                    {
+                                        "for": "Boss Nob",
+                                        "options": ["Kombi-Rokkit", "Kombi-Skorcha"],
+                                        "replace": "Slugga"
+                                    }
+                                ]
+                            }
+                        ],
+                        "models": [
+                            {
+                                "name": "Boss Nob",
+                                "gameData": {
+                                    "points": 8,
+                                    "movement": "5\"",
+                                    "weaponSkill": "3+",
+                                    "ballisticSkill": "5+",
+                                    "strength": 5,
+                                    "toughness": 5,
+                                    "wounds": 2,
+                                    "attacks": 3,
+                                    "leadership": 7,
+                                    "save": "6+",
+                                    "size": 32
+                                },
+                                "defaultWargear": ["Slugga", "Choppa", "Stikkbombs"]
+                            },
+                            {
+                                "name": "Ork Boy",
+                                "gameData": {
+                                    "points": 8,
+                                    "movement": "5\"",
+                                    "weaponSkill": "3+",
+                                    "ballisticSkill": "5+",
+                                    "strength": 4,
+                                    "toughness": 5,
+                                    "wounds": 1,
+                                    "attacks": 2,
+                                    "leadership": 6,
+                                    "save": "6+",
+                                    "size": 32
+                                },
+                                "wargear": ["Slugga", "Choppa", "Stikkbombs"]
+                            },
+                            {
+                                "name": "Ork Boy",
+                                "gameData": {
+                                    "points": 8,
+                                    "movement": "5\"",
+                                    "weaponSkill": "3+",
+                                    "ballisticSkill": "5+",
+                                    "strength": 4,
+                                    "toughness": 5,
+                                    "wounds": 1,
+                                    "attacks": 2,
+                                    "leadership": 6,
+                                    "save": "6+",
+                                    "size": 32
+                                },
+                                "wargear": ["Slugga", "Choppa", "Stikkbombs"]
+                            },
+                            {
+                                "name": "Ork Boy",
+                                "gameData": {
+                                    "points": 8,
+                                    "movement": "5\"",
+                                    "weaponSkill": "3+",
+                                    "ballisticSkill": "5+",
+                                    "strength": 4,
+                                    "toughness": 5,
+                                    "wounds": 1,
+                                    "attacks": 2,
+                                    "leadership": 6,
+                                    "save": "6+",
+                                    "size": 32
+                                },
+                                "wargear": ["Slugga", "Choppa", "Stikkbombs"]
+                            },
+                            {
+                                "name": "Ork Boy",
+                                "gameData": {
+                                    "points": 8,
+                                    "movement": "5\"",
+                                    "weaponSkill": "3+",
+                                    "ballisticSkill": "5+",
+                                    "strength": 4,
+                                    "toughness": 5,
+                                    "wounds": 1,
+                                    "attacks": 2,
+                                    "leadership": 6,
+                                    "save": "6+",
+                                    "size": 32
+                                },
+                                "wargear": ["Slugga", "Choppa", "Stikkbombs"]
+                            },
+                            {
+                                "name": "Ork Boy",
+                                "gameData": {
+                                    "points": 8,
+                                    "movement": "5\"",
+                                    "weaponSkill": "3+",
+                                    "ballisticSkill": "5+",
+                                    "strength": 4,
+                                    "toughness": 5,
+                                    "wounds": 1,
+                                    "attacks": 2,
+                                    "leadership": 6,
+                                    "save": "6+",
+                                    "size": 32
+                                },
+                                "wargear": ["Slugga", "Choppa", "Stikkbombs"]
+                            },
+                            {
+                                "name": "Ork Boy",
+                                "gameData": {
+                                    "points": 8,
+                                    "movement": "5\"",
+                                    "weaponSkill": "3+",
+                                    "ballisticSkill": "5+",
+                                    "strength": 4,
+                                    "toughness": 5,
+                                    "wounds": 1,
+                                    "attacks": 2,
+                                    "leadership": 6,
+                                    "save": "6+",
+                                    "size": 32
+                                },
+                                "wargear": ["Slugga", "Choppa", "Stikkbombs"]
+                            },
+                            {
+                                "name": "Ork Boy",
+                                "gameData": {
+                                    "points": 8,
+                                    "movement": "5\"",
+                                    "weaponSkill": "3+",
+                                    "ballisticSkill": "5+",
+                                    "strength": 4,
+                                    "toughness": 5,
+                                    "wounds": 1,
+                                    "attacks": 2,
+                                    "leadership": 6,
+                                    "save": "6+",
+                                    "size": 32
+                                },
+                                "wargear": ["Slugga", "Choppa", "Stikkbombs"]
+                            },
+                            {
+                                "name": "Ork Boy",
+                                "gameData": {
+                                    "points": 8,
+                                    "movement": "5\"",
+                                    "weaponSkill": "3+",
+                                    "ballisticSkill": "5+",
+                                    "strength": 4,
+                                    "toughness": 5,
+                                    "wounds": 1,
+                                    "attacks": 2,
+                                    "leadership": 6,
+                                    "save": "6+",
+                                    "size": 32
+                                },
+                                "wargear": ["Slugga", "Choppa", "Stikkbombs"]
+                            },
+                            {
+                                "name": "Ork Boy",
+                                "gameData": {
+                                    "points": 8,
+                                    "movement": "5\"",
+                                    "weaponSkill": "3+",
+                                    "ballisticSkill": "5+",
+                                    "strength": 4,
+                                    "toughness": 5,
+                                    "wounds": 1,
+                                    "attacks": 2,
+                                    "leadership": 6,
+                                    "save": "6+",
+                                    "size": 32
+                                },
+                                "wargear": ["Slugga", "Choppa", "Stikkbombs"]
+                            },
+                            // Add more Ork Boyz here...
+                        ],
+                        "abilities": ["'Ere We Go", "Mob Rule", "Waaagh!"]
+                    }
+                    // Add other Ork squads here...
+                ]
+            },
+            // Add more factions here...
+        ];
 
     // Upload the data to Firestore
     factions.forEach((faction) => {
